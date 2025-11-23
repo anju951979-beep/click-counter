@@ -10,7 +10,7 @@
 <style>
 body {
     background: #1e1e1e;
-    color:#191919 ;
+    color: #f0f0f0;
     font-family: 'Press Start 2P', monospace;
     display: flex;
     justify-content: center;
@@ -20,7 +20,7 @@ body {
 }
 .container {
     text-align: center;
-    background: #191919;
+    background: #2c2c2c;
     padding: 40px;
     border-radius: 20px;
     box-shadow: 0 0 20px #000;
@@ -47,7 +47,7 @@ button:hover {
     background: #6c6c6c;
 }
 #reset {
-    background:#191919;
+    background:#ff5555;
 }
 #reset:hover {
     background:#ff2222;
@@ -147,4 +147,34 @@ function increment() {
     update();
     playSound(levelUp);
 
-    const rect = document.getElementB
+    const rect = document.getElementById("count").getBoundingClientRect();
+    const containerRect = document.querySelector(".container").getBoundingClientRect();
+    
+    // particle
+    createParticle(rect.width/2, rect.top - containerRect.top, "level");
+    // big +
+    createSymbol(rect.width/2 - 32, rect.top - containerRect.top - 30, "+", "gold");
+}
+
+function decrement() {
+    count--;
+    update();
+    playSound(damage);
+
+    const rect = document.getElementById("count").getBoundingClientRect();
+    const containerRect = document.querySelector(".container").getBoundingClientRect();
+    
+    // particle
+    createParticle(rect.width/2, rect.top - containerRect.top, "damage");
+    // big -
+    createSymbol(rect.width/2 - 32, rect.top - containerRect.top - 30, "−", "red");
+}
+
+function resetCount() {
+    count = 0;
+    update();
+    playSound(levelUp);
+}
+</script>
+</body>
+</html>
