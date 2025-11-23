@@ -3,15 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hours Studied</title>
-<!-- Minecraft-style font -->
+<title>Study XP Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-
 <style>
 body {
-    background: #1e1e1e;
-    color: #f0f0f0;
+    background: #191919;
     font-family: 'Press Start 2P', monospace;
+    color: #f0f0f0;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -20,7 +18,7 @@ body {
 }
 .container {
     text-align: center;
-    background: #191919; /* Notion-dark background */
+    background: #191919;
     padding: 30px;
     border-radius: 15px;
     box-shadow: 0 0 15px #000;
@@ -28,61 +26,43 @@ body {
     overflow: visible;
 }
 #count {
-    font-size: 60px; /* smaller font */
-    margin: 15px 0;
-    font-weight: bold;
+    font-size: 50px;
+    margin: 10px 0;
 }
 button {
     padding: 12px 30px;
-    font-size: 18px; /* smaller */
+    font-size: 18px;
     border: none;
     border-radius: 10px;
-    margin: 8px;
+    margin: 5px;
     cursor: pointer;
-    background: #0d0d0d; /* darker button to blend */
+    background: #0d0d0d;
     color: #f0f0f0;
     transition: 0.2s;
 }
-button:hover {
-    background: #2c2c2c;
-}
-#reset {
-    background:#0d0d0d;
-}
-#reset:hover {
-    background:#2c2c2c;
-}
+button:hover { background: #2c2c2c; }
+#reset { background: #0d0d0d; }
+#reset:hover { background: #2c2c2c; }
 
-/* Particle styles */
-.particle {
-    position: absolute;
-    width: 6px;
-    height: 6px;
+/* XP Bar */
+.xp-container {
+    width: 300px;
+    height: 30px;
+    background: #0d0d0d;
+    border: 2px solid #333;
+    border-radius: 5px;
+    margin: 20px auto;
+    position: relative;
+}
+.xp-fill {
+    height: 100%;
     background: gold;
-    border-radius: 50%;
-    pointer-events: none;
-    animation: floatUp 0.8s forwards;
+    width: 0%;
+    transition: width 0.3s;
 }
-.damage-particle {
-    background: red;
-}
-@keyframes floatUp {
-    0% { transform: translateY(0) scale(1); opacity: 1; }
-    100% { transform: translateY(-50px) scale(0.5); opacity: 0; }
-}
-
-/* Big floating + / - */
-.floating-symbol {
-    position: absolute;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 48px; /* smaller */
-    font-weight: bold;
-    pointer-events: none;
-    animation: floatUpPlus 1s forwards;
-}
-@keyframes floatUpPlus {
-    0% { transform: translateY(0) scale(1); opacity: 1; }
-    100% { transform: translateY(-70px) scale(1.1); opacity: 0; }
+.level-display {
+    margin-top: 10px;
+    font-size: 24px;
 }
 </style>
 </head>
@@ -95,82 +75,79 @@ button:hover {
     <br>
     <button id="reset" onclick="resetCount()">Reset</button>
 
-    <!-- Minecraft Sounds -->
-    <audio id="levelUp" src="https://orangefreesounds.com/wp-content/uploads/2024/09/Level-up-sound.mp3"></audio>
-    <audio id="damage" src="https://www.myinstants.com/media/sounds/minecraft-damage.mp3"></audio>
+    <div class="xp-container">
+        <div class="xp-fill" id="xp-fill"></div>
+    </div>
+    <div class="level-display">Level: <span id="level">0</span></div>
 </div>
 
 <script>
-let count = localStorage.getItem("tally") 
-            ? parseInt(localStorage.getItem("tally")) 
-            : 0;
-document.getElementById("count").textContent = count;
+let hoursStudied = localStorage.getItem("hoursStudied") 
+                    ? parseInt(localStorage.getItem("hoursStudied")) : 0;
+let level = localStorage.getItem("level") 
+            ? parseInt(localStorage.getItem("level")) : 0;
 
-const levelUp = document.getElementById("levelUp");
-const damage = document.getElementById("damage");
+const countEl = document.getElementById("count");
+const xpFill = document.getElementById("xp-fill");
+const levelEl = document.getElementById("level");
 
-function playSound(sound) {
-    const s = sound.cloneNode();
-    s.play();
+const XP_MAX = 6; // 6 hours per level
+
+function updateDisplay() {
+    countEl.textContent = hoursStudied;
+    levelEl.textContent = level;
+    let xpPercent = (hoursStudied % XP_MAX) / XP_MAX * 100;
+    xpFill.style.width = xpPercent + "%";
 }
 
-function update() {
-    document.getElementById("count").textContent = count;
-    localStorage.setItem("tally", count);
-}
-
-// Particle creation
-function createParticle(x, y, type="level") {
-    const particle = document.createElement("div");
-    particle.className = "particle";
-    if(type==="damage") particle.classList.add("damage-particle");
-    particle.style.left = x + "px";
-    particle.style.top = y + "px";
-    document.querySelector(".container").appendChild(particle);
-    setTimeout(() => particle.remove(), 800);
-}
-
-// Big floating symbol creation
-function createSymbol(x, y, symbol, color) {
-    const elem = document.createElement("div");
-    elem.className = "floating-symbol";
-    elem.textContent = symbol;
-    elem.style.color = color;
-    elem.style.left = x + "px";
-    elem.style.top = y + "px";
-    document.querySelector(".container").appendChild(elem);
-    setTimeout(() => elem.remove(), 1000);
-}
-
+// Increment hours
 function increment() {
-    count++;
-    update();
-    playSound(levelUp);
-
-    const rect = document.getElementById("count").getBoundingClientRect();
-    const containerRect = document.querySelector(".container").getBoundingClientRect();
-    
-    createParticle(rect.width/2, rect.top - containerRect.top, "level");
-    createSymbol(rect.width/2 - 24, rect.top - containerRect.top - 20, "+", "gold");
+    hoursStudied++;
+    if(hoursStudied >= XP_MAX) {
+        level++;
+    }
+    saveData();
+    updateDisplay();
 }
 
+// Decrement hours
 function decrement() {
-    count--;
-    update();
-    playSound(damage);
-
-    const rect = document.getElementById("count").getBoundingClientRect();
-    const containerRect = document.querySelector(".container").getBoundingClientRect();
-    
-    createParticle(rect.width/2, rect.top - containerRect.top, "damage");
-    createSymbol(rect.width/2 - 24, rect.top - containerRect.top - 20, "−", "red");
+    if(hoursStudied > 0) hoursStudied--;
+    if(hoursStudied < 0) hoursStudied = 0;
+    saveData();
+    updateDisplay();
 }
 
+// Reset
 function resetCount() {
-    count = 0;
-    update();
-    playSound(levelUp);
+    hoursStudied = 0;
+    saveData();
+    updateDisplay();
 }
+
+// Save to localStorage
+function saveData() {
+    localStorage.setItem("hoursStudied", hoursStudied);
+    localStorage.setItem("level", level);
+}
+
+// Auto-decrease level if not studied today
+function dailyCheck() {
+    const lastDate = localStorage.getItem("lastDate");
+    const today = new Date().toDateString();
+    if(lastDate && lastDate !== today) {
+        // new day
+        if(hoursStudied < XP_MAX) { // didn't complete level
+            level = Math.max(0, level - 1);
+            hoursStudied = 0; // reset XP
+        }
+    }
+    localStorage.setItem("lastDate", today);
+}
+
+dailyCheck();
+updateDisplay();
 </script>
 </body>
 </html>
+
