@@ -117,16 +117,13 @@ document.getElementById("count").textContent = count;
 let streak = Number(localStorage.getItem("daily_streak")) || 0;
 document.getElementById("streak").textContent = streak;
 
-let lastDay = localStorage.getItem("last_day") || "";
+let lastDay = localStorage.getItem("last_day") || new Date().toDateString();
 
 // -----------------------------
 // SOUND
 // -----------------------------
-const levelUp = document.getElementById("levelUp");
-const damage = document.getElementById("damage");
-
-function playSound(s) {
-    const a = s.cloneNode();
+function playSound(el) {
+    const a = el.cloneNode();
     a.play();
 }
 
@@ -143,12 +140,9 @@ function update() {
 // -----------------------------
 function createParticle(x, y, type="level") {
     const p = document.createElement("div");
-    p.className = "particle";
-    if(type === "damage") p.classList.add("damage-particle");
-
+    p.className = type === "damage" ? "particle damage-particle" : "particle";
     p.style.left = x + "px";
     p.style.top = y + "px";
-
     document.querySelector(".container").appendChild(p);
     setTimeout(() => p.remove(), 800);
 }
@@ -160,49 +154,43 @@ function createSymbol(x, y, symbol, color) {
     elem.style.color = color;
     elem.style.left = x + "px";
     elem.style.top = y + "px";
-
     document.querySelector(".container").appendChild(elem);
     setTimeout(() => elem.remove(), 1000);
 }
 
 // -----------------------------
-// DAILY STREAK LOGIC
+// FIXED DAILY STREAK LOGIC
 // -----------------------------
-function checkStreak() {
+function dailyCheck() {
     const today = new Date().toDateString();
 
-    // If it's a new day → check yesterday's count
     if (lastDay !== today) {
-        if (count >= 6) {
-            streak++;
-        } else {
-            streak = 0;
-        }
+        // New day started → check YESTERDAY
+        let yesterdayHours = Number(localStorage.getItem("tally")) || 0;
 
-        // show new streak
+        if (yesterdayHours >= 6) streak++;
+        else streak = 0;
+
         document.getElementById("streak").textContent = streak;
-
-        // save streak
         localStorage.setItem("daily_streak", streak);
 
-        // reset day
-        lastDay = today;
-        localStorage.setItem("last_day", today);
-
-        // reset tally for new day
+        // Reset for new day
         count = 0;
         update();
+
+        lastDay = today;
+        localStorage.setItem("last_day", today);
     }
 }
 
-// run streak check every 10 sec
-setInterval(checkStreak, 10000);
+// Run daily check every 5 seconds
+setInterval(dailyCheck, 5000);
 
 // -----------------------------
 // BUTTONS
 // -----------------------------
 function increment() {
-    checkStreak();
+    dailyCheck();
 
     count++;
     update();
@@ -211,14 +199,21 @@ function increment() {
     const rect = document.getElementById("count").getBoundingClientRect();
     const box = document.querySelector(".container").getBoundingClientRect();
 
-    createParticle(rect.width/2, rect.top - box.top, "level");
+    createParticle(rect.width/2, rect.top - box.top);
     createSymbol(rect.width/2 - 20, rect.top - box.top - 20, "+", "gold");
+
+    // Live streak update when hitting 6 hours
+    if (count === 6) {
+        streak++;
+        document.getElementById("streak").textContent = streak;
+        localStorage.setItem("daily_streak", streak);
+    }
 }
 
 function decrement() {
-    checkStreak();
+    dailyCheck();
 
-    count--;
+    if (count > 0) count--;
     update();
     playSound(damage);
 
@@ -238,5 +233,6 @@ function resetCount() {
 
 </body>
 </html>
+
 
 
