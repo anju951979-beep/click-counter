@@ -3,217 +3,280 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AZD Minecraft Dashboard</title>
+<title>Minecraft Study Dashboard</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
 <style>
     body {
         background: #191919;
-        color: #eaeaea;
+        color: #e0e0e0;
         font-family: 'Press Start 2P', monospace;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 40px;
         margin: 0;
-        padding: 20px;
     }
 
-    /* 🔥 WIDER WRAPPER */
-    .wrapper {
-        width: 100%;
-        max-width: 1200px;  /* Increased width */
-        margin: auto;
+    .container {
+        width: 900px; /* EXTRA WIDE */
+        background: #111;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 0 20px #000;
     }
 
-    h1 {
+    h1, h2 {
+        color: #6aff6a;
         text-align: center;
-        margin-bottom: 25px;
         font-size: 20px;
-        color: #55ff55;
+        margin-bottom: 20px;
     }
 
     #count {
         font-size: 60px;
         text-align: center;
-        margin: 15px 0;
+        margin: 20px 0;
         color: #fff;
     }
 
     button {
+        padding: 15px 30px;
+        margin: 10px;
+        font-size: 20px;
         background: #333;
-        color: #fff;
         border: none;
-        padding: 14px 32px;
-        font-size: 24px;
-        border-radius: 10px;
+        border-radius: 8px;
+        color: #fff;
         cursor: pointer;
-        margin: 8px;
     }
 
     button:hover {
-        background:#444;
+        background: #555;
     }
 
-    /* TODAY + WEEK BARS – FULL WIDTH */
-    .bar-bg {
-        width: 100%;
-        height: 18px;
+    .section {
+        margin-top: 35px;
+        padding: 20px;
+        background: #1a1a1a;
+        border-radius: 10px;
+    }
+
+    /* Today & Week bars */
+    .bar {
+        height: 20px;
         background: #333;
-        border-radius: 6px;
-        margin-top: 12px;
+        border-radius: 10px;
+        width: 100%;
+        margin-top: 10px;
+        overflow: hidden;
     }
 
-    .bar-fill {
+    .fill {
         height: 100%;
-        background: #00aaff;
         width: 0%;
+        background: #4caf50;
         transition: 0.3s ease;
     }
 
-    /* STREAK BOX */
-    .streak-box {
-        margin-top: 30px;
-        background: #111;
-        padding: 22px;
-        border: 2px solid #333;
-        border-radius: 10px;
+    /* Streak */
+    #streak {
+        font-size: 22px;
+        color: #6aff6a;
     }
 
-    /* TO DO LIST – FULL WIDTH */
-    .todo-box {
-        background: #111;
-        padding: 22px;
-        border-radius: 10px;
-        margin-top: 30px;
-        border: 2px solid #333;
-    }
-
-    input[type="text"] {
-        width: 100%;
-        background: #000;
-        color: #fff;
-        padding: 14px;
-        border: 1px solid #444;
-        border-radius: 8px;
-        font-size: 12px;
-    }
-
-    .todo-item {
+    /* To-Do List */
+    .task {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #222;
         padding: 12px;
-        border-bottom: 1px solid #333;
-        font-size: 12px;
-        cursor: pointer;
+        border-radius: 8px;
+        margin-bottom: 10px;
     }
 
-    .todo-item.done {
-        text-decoration: line-through;
-        color: #777;
+    .task label {
+        color: #fff;
+        font-size: 15px;
     }
+
+    .due {
+        color: #ff4444;
+        font-size: 14px;
+        margin-left: 10px;
+    }
+
+    input[type="checkbox"] {
+        transform: scale(1.6);
+        margin-right: 15px;
+    }
+
 </style>
 </head>
-
 <body>
 
-<div class="wrapper">
+<div class="container">
 
-<h1>🔥 AZD Minecraft Study Dashboard</h1>
+    <h1>Minecraft Study Dashboard</h1>
 
-<!-- COUNTER -->
-<div id="count">0</div>
-<div style="text-align:center;">
-    <button onclick="dec()">-</button>
-    <button onclick="inc()">+</button>
-</div>
+    <!-- HOURS COUNTER -->
+    <div id="count">0</div>
+    <div style="text-align:center;">
+        <button onclick="decrement()">-</button>
+        <button onclick="increment()">+</button>
+        <button onclick="resetCount()">Reset</button>
+    </div>
 
-<!-- TODAY PROGRESS -->
-<h3 style="font-size:14px;margin-top:35px;">Today</h3>
-<div class="bar-bg"><div class="bar-fill" id="todayFill"></div></div>
+    <!-- TODAY PROGRESS -->
+    <div class="section">
+        <h2>Today</h2>
+        <div class="bar"><div id="todayFill" class="fill"></div></div>
+    </div>
 
-<!-- WEEK PROGRESS -->
-<h3 style="font-size:14px;margin-top:22px;">Week</h3>
-<div class="bar-bg"><div class="bar-fill" id="weekFill"></div></div>
+    <!-- WEEK PROGRESS -->
+    <div class="section">
+        <h2>This Week</h2>
+        <div class="bar"><div id="weekFill" class="fill"></div></div>
+    </div>
 
-<!-- STREAK -->
-<div class="streak-box">
-    <h3 style="font-size:14px;">Streak 🔥</h3>
-    <div style="font-size:12px;">Days: <span id="streak">0</span> | Freeze Used: <span id="freeze">0</span>/1</div>
-</div>
+    <!-- STREAK SYSTEM -->
+    <div class="section">
+        <h2>Streak</h2>
+        <div id="streak">🔥 0 Days</div>
+        <div style="color:#bbb; font-size:14px; margin-top:5px;">
+            (One-day freeze protection)
+        </div>
+    </div>
 
-<!-- TODO LIST -->
-<div class="todo-box">
-    <h3 style="font-size:14px;">To-Do Tasks</h3>
-    <input type="text" id="todoInput" placeholder="Add task + press Enter">
-    <div id="todoList"></div>
-</div>
+    <!-- TO-DO LIST -->
+    <div class="section">
+        <h2>To-Do List</h2>
+        <div id="todoList"></div>
+
+        <input id="newTask" type="text" placeholder="Task" style="width:60%;padding:10px;border-radius:8px;">
+        <input id="dueTime" type="number" placeholder="Due (hrs)" style="width:20%;padding:10px;border-radius:8px;">
+        <button onclick="addTask()">Add</button>
+    </div>
 
 </div>
 
 <script>
-// ---------------- COUNT ----------------
-let count = parseInt(localStorage.getItem("hours") || 0);
-document.getElementById("count").innerText = count;
+// -----------------------------
+// LOAD DATA
+// -----------------------------
+let count = parseInt(localStorage.getItem("tally")) || 0;
+document.getElementById("count").textContent = count;
 
-// ---------------- TODAY + WEEK BARS ----------------
-function updateBars() {
-    let today = count % 6;
-    let week = count % 42;
+let streak = parseInt(localStorage.getItem("streak")) || 0;
+let lastStudyDay = localStorage.getItem("lastStudyDay") || "";
+updateStreakDisplay();
 
-    document.getElementById("todayFill").style.width = (today / 6) * 100 + "%";
-    document.getElementById("weekFill").style.width = (week / 42) * 100 + "%";
+let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
+renderTasks();
+
+
+// -----------------------------
+// COUNTER
+// -----------------------------
+function update() {
+    document.getElementById("count").textContent = count;
+    localStorage.setItem("tally", count);
+
+    updateBars();
+    updateStreak();
 }
-updateBars();
 
-// ---------------- STREAK ----------------
-let streak = parseInt(localStorage.getItem("streak") || 0);
-let freeze = parseInt(localStorage.getItem("freeze") || 0);
+function increment() {
+    count++;
+    update();
+}
 
-document.getElementById("streak").innerText = streak;
-document.getElementById("freeze").innerText = freeze;
+function decrement() {
+    if (count > 0) count--;
+    update();
+}
 
-// ---------------- TODO LIST ----------------
-let todos = JSON.parse(localStorage.getItem("todos") || "[]");
+function resetCount() {
+    count = 0;
+    update();
+}
 
-function renderTodos() {
+
+// -----------------------------
+// TODAY & WEEK BARS
+// -----------------------------
+function updateBars() {
+    let todayPercent = Math.min((count / 6) * 100, 100);
+    document.getElementById("todayFill").style.width = todayPercent + "%";
+
+    let weekHours = parseInt(localStorage.getItem("weekHours")) || 0;
+    weekHours += 0;
+    let weekPercent = Math.min((weekHours / 42) * 100, 100);
+    document.getElementById("weekFill").style.width = weekPercent + "%";
+}
+
+
+// -----------------------------
+// STREAK SYSTEM (Option A)
+// -----------------------------
+function updateStreak() {
+    let today = new Date().toDateString();
+
+    if (count > 0 && today !== lastStudyDay) {
+        streak++;
+        lastStudyDay = today;
+        localStorage.setItem("lastStudyDay", lastStudyDay);
+        localStorage.setItem("streak", streak);
+    }
+
+    updateStreakDisplay();
+}
+
+function updateStreakDisplay() {
+    document.getElementById("streak").textContent = `🔥 ${streak} Days`;
+}
+
+
+// -----------------------------
+// TO-DO LIST
+// -----------------------------
+function renderTasks() {
     let list = document.getElementById("todoList");
     list.innerHTML = "";
-    todos.forEach((t, i) => {
-        let item = document.createElement("div");
-        item.className = "todo-item" + (t.done ? " done" : "");
-        item.innerText = t.text;
-        item.onclick = () => {
-            todos[i].done = !todos[i].done;
-            saveTodos();
-        };
-        list.appendChild(item);
+
+    tasks.forEach((t, i) => {
+        list.innerHTML += `
+        <div class="task">
+            <label>
+                <input type="checkbox" ${t.done ? "checked" : ""} onclick="toggleTask(${i})">
+                ${t.text}
+            </label>
+            <div class="due">${t.due} hrs</div>
+        </div>`;
     });
 }
 
-function saveTodos() {
-    localStorage.setItem("todos", JSON.stringify(todos));
-    renderTodos();
+function addTask() {
+    let text = document.getElementById("newTask").value;
+    let due = document.getElementById("dueTime").value;
+
+    if (!text || !due) return;
+
+    tasks.push({ text, due, done: false });
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+
+    document.getElementById("newTask").value = "";
+    document.getElementById("dueTime").value = "";
+
+    renderTasks();
 }
 
-renderTodos();
-
-document.getElementById("todoInput").addEventListener("keypress", function(e) {
-    if (e.key === "Enter") {
-        todos.push({text: this.value, done:false});
-        this.value = "";
-        saveTodos();
-    }
-});
-
-// ---------------- UPDATE COUNT ----------------
-function inc() {
-    count++;
-    localStorage.setItem("hours", count);
-    document.getElementById("count").innerText = count;
-    updateBars();
-}
-
-function dec() {
-    if (count > 0) count--;
-    localStorage.setItem("hours", count);
-    document.getElementById("count").innerText = count;
-    updateBars();
+function toggleTask(i) {
+    tasks[i].done = !tasks[i].done;
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+    renderTasks();
 }
 </script>
 
