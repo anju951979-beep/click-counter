@@ -14,7 +14,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding-top: 20px;
+    padding: 20px;
     margin: 0;
 }
 
@@ -23,14 +23,40 @@ body {
     padding: 25px;
     border-radius: 15px;
     width: 90%;
-    max-width: 520px;
+    max-width: 540px;
     box-shadow: 0 0 20px black;
     text-align: center;
 }
 
+/* Progress Bars */
+.progress-box {
+    margin-top: 25px;
+    text-align: left;
+}
+
+.progress-label {
+    font-size: 12px;
+    margin-bottom: 6px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 12px;
+    background: #0d0d0d;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #00ff00;
+    width: 0%;
+    transition: 0.3s;
+}
+
 /* Hours Counter */
 #count {
-    font-size: 40px;
+    font-size: 38px;
     margin: 10px 0;
 }
 
@@ -38,7 +64,7 @@ button {
     padding: 10px 25px;
     font-size: 18px;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     margin: 7px;
     cursor: pointer;
     background: #0d0d0d;
@@ -50,15 +76,10 @@ button:hover { background: #363636; }
 /* Streak Section */
 .streak-box {
     margin-top: 25px;
-    font-size: 18px;
-    line-height: 26px;
+    font-size: 14px;
 }
 
-/* To-Do List Styling */
-#todo-section {
-    margin-top: 35px;
-}
-
+/* TO DO LIST */
 .todo-input {
     width: 80%;
     padding: 10px;
@@ -66,42 +87,22 @@ button:hover { background: #363636; }
     border-radius: 8px;
     background: #0d0d0d;
     color: #f0f0f0;
-    margin-bottom: 15px;
     font-family: 'Press Start 2P';
-    font-size: 12px;
+    margin-bottom: 15px;
+    font-size: 11px;
 }
 
-.todo-btn {
-    padding: 10px 20px;
-    margin-left: 5px;
-    border-radius: 8px;
-}
-
-ul {
-    list-style: none;
-    padding: 0;
-}
-
+ul { list-style: none; padding: 0; }
 li {
     background: #0d0d0d;
     padding: 12px;
     margin-top: 10px;
     border-radius: 8px;
+    font-size: 12px;
     display: flex;
     justify-content: space-between;
-    font-size: 12px;
 }
-
-.todo-actions button {
-    margin-left: 10px;
-    font-size: 12px;
-    padding: 7px 10px;
-}
-
-.done {
-    text-decoration: line-through;
-    opacity: 0.6;
-}
+.done { text-decoration: line-through; opacity: 0.6; }
 </style>
 </head>
 
@@ -117,6 +118,19 @@ li {
     <br>
     <button onclick="resetHours()">Reset Hours</button>
 
+    <!-- PROGRESS BARS -->
+    <div class="progress-box">
+        <div class="progress-label">Today</div>
+        <div class="progress-bar">
+            <div id="todayFill" class="progress-fill"></div>
+        </div>
+
+        <div class="progress-label" style="margin-top:10px;">Week</div>
+        <div class="progress-bar">
+            <div id="weekFill" class="progress-fill"></div>
+        </div>
+    </div>
+
     <!-- STREAK -->
     <div class="streak-box">
         Streak: <span id="streak">0</span><br>
@@ -124,49 +138,87 @@ li {
     </div>
 
     <!-- TO DO LIST -->
-    <div id="todo-section">
-        <h2 style="margin-top:25px;">To-Do List</h2>
-
-        <input class="todo-input" id="todoInput" placeholder="Add task..." />
-        <button class="todo-btn" onclick="addTask()">Add</button>
-
-        <ul id="todoList"></ul>
-    </div>
+    <h2 style="margin-top:30px;">Tasks</h2>
+    <input id="todoInput" class="todo-input" placeholder="Add task..." />
+    <button onclick="addTask()">Add</button>
+    <ul id="todoList"></ul>
 
 </div>
 
 <script>
-/* ---------- HOURS + STREAK SYSTEM ---------- */
+/* ----------- SETTINGS ----------- */
+const DAILY_TARGET = 6;    // 6 hours/day
+const WEEK_TARGET = 42;    // 6*7 hours
+
+/* ----------- HOURS + STREAK ----------- */
 let hours = parseInt(localStorage.getItem("hours") || 0);
 let streak = parseInt(localStorage.getItem("streak") || 0);
 let freeze = parseInt(localStorage.getItem("freeze") || 1);
 let lastDay = localStorage.getItem("lastDay") || "";
+let weekHours = parseInt(localStorage.getItem("weekHours") || 0);
+let weekStart = localStorage.getItem("weekStart") || "";
 
-function updateDisplay() {
+/* Update UI */
+function display() {
     document.getElementById("count").textContent = hours;
     document.getElementById("streak").textContent = streak;
     document.getElementById("freeze").textContent = freeze;
+
+    // Today progress
+    let todayPercent = (hours / DAILY_TARGET) * 100;
+    document.getElementById("todayFill").style.width = Math.min(todayPercent, 100) + "%";
+
+    // Week progress
+    let weekPercent = (weekHours / WEEK_TARGET) * 100;
+    document.getElementById("weekFill").style.width = Math.min(weekPercent, 100) + "%";
 }
 
+/* Reset week every Monday */
+function checkWeekReset() {
+    let today = new Date();
+    let dayName = today.toLocaleDateString("en-US", { weekday: "long" });
+
+    if (dayName === "Monday" && weekStart !== today.toDateString()) {
+        weekHours = 0;
+        weekStart = today.toDateString();
+        localStorage.setItem("weekHours", 0);
+        localStorage.setItem("weekStart", weekStart);
+    }
+}
+
+checkWeekReset();
+
+/* Increment */
 function increment() {
     hours++;
+    weekHours++;
+
     localStorage.setItem("hours", hours);
+    localStorage.setItem("weekHours", weekHours);
+
     dailyCheck(true);
-    updateDisplay();
+    display();
 }
 
+/* Decrement */
 function decrement() {
     if (hours > 0) hours--;
+    if (weekHours > 0) weekHours--;
+
     localStorage.setItem("hours", hours);
-    updateDisplay();
+    localStorage.setItem("weekHours", weekHours);
+
+    display();
 }
 
+/* Reset hours */
 function resetHours() {
     hours = 0;
-    localStorage.setItem("hours", hours);
-    updateDisplay();
+    localStorage.setItem("hours", 0);
+    display();
 }
 
+/* Daily streak check */
 function dailyCheck(studied) {
     const today = new Date().toDateString();
     if (lastDay === today) return;
@@ -175,26 +227,21 @@ function dailyCheck(studied) {
         streak++;
         freeze = 1;
     } else {
-        if (freeze > 0) {
-            freeze--;
-        } else {
-            streak = 0;
-        }
+        if (freeze > 0) freeze--;
+        else streak = 0;
+
         hours = 0;
     }
 
     lastDay = today;
+
     localStorage.setItem("streak", streak);
     localStorage.setItem("freeze", freeze);
     localStorage.setItem("lastDay", today);
-    localStorage.setItem("hours", hours);
 }
 
-dailyCheck(false);
-updateDisplay();
+/* ----------- TO-DO LIST ----------- */
 
-
-/* ---------- TO-DO LIST SYSTEM ---------- */
 let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
 
 function renderTasks() {
@@ -202,25 +249,23 @@ function renderTasks() {
     list.innerHTML = "";
 
     tasks.forEach((task, index) => {
-        let li = document.createElement("li");
-        li.innerHTML = `
-            <span class="${task.done ? "done" : ""}">${task.text}</span>
-            <span class="todo-actions">
+        list.innerHTML += `
+        <li>
+            <span class="${task.done ? 'done' : ''}">${task.text}</span>
+            <span>
                 <button onclick="toggleDone(${index})">✔</button>
                 <button onclick="deleteTask(${index})">✖</button>
-            </span>`;
-        list.appendChild(li);
+            </span>
+        </li>`;
     });
 }
 
 function addTask() {
     let input = document.getElementById("todoInput");
-    let text = input.value.trim();
-    if (text === "") return;
+    if (!input.value.trim()) return;
 
-    tasks.push({ text, done: false });
+    tasks.push({ text: input.value, done: false });
     input.value = "";
-
     saveTasks();
     renderTasks();
 }
@@ -241,9 +286,10 @@ function saveTasks() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
+/* INIT */
+display();
 renderTasks();
 </script>
 
 </body>
 </html>
-
