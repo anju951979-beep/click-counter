@@ -1,145 +1,73 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Minecraft Notion Dashboard</title>
-
-<style>
+  <title>Cool Tally Counter</title>
+  <style>
     body {
-        background: #191919;
-        color: white;
-        font-family: monospace;
-        padding: 20px;
-        width: 100%;
-        box-sizing: border-box;
+      background:#0f0f0f;
+      color:white;
+      font-family: monospace;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      height:100vh;
+      margin:0;
     }
 
-    .section {
-        background: #1f1f1f;
-        border: 2px solid #000;
-        padding: 18px;
-        border-radius: 10px;
-        margin-bottom: 25px;
-        width: 100%;
-    }
-
-    h2 {
-        margin-top: 0;
-        color: #22ff22;
-        font-size: 22px;
-        text-shadow: 0 0 4px #22ff22;
-    }
-
-    .todo-row {
-        background: #111;
-        padding: 14px;
-        border-radius: 12px;
-        margin: 12px 0;
-        border-left: 4px solid #ff4444;
-    }
-
-    .todo-title {
-        font-size: 18px;
-        margin-bottom: 6px;
-    }
-
-    .due-badge {
-        background: #ff3b3b;
-        color: white;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 14px;
-        display: inline-block;
-        margin-right: 6px;
-    }
-    
-    #counter-box {
-        text-align: center;
-        padding: 20px;
-        background: #111;
-        border-radius: 12px;
+    #counter {
+      font-size:100px;
+      margin-bottom:30px;
     }
 
     button {
-        font-size: 28px;
-        padding: 10px 18px;
-        margin: 8px;
-        cursor: pointer;
-        background: #2b2b2b;
-        color: white;
-        border: 2px solid #000;
-        border-radius: 8px;
+      font-size:30px;
+      padding:15px 40px;
+      margin:10px;
+      border:none;
+      border-radius:10px;
+      cursor:pointer;
     }
 
-    #count {
-        font-size: 32px;
-        padding: 10px 20px;
-        display: inline-block;
-        min-width: 40px;
-    }
-</style>
-
+    #up { background:#1f8bff; }
+    #down { background:#ff4444; }
+  </style>
 </head>
 
 <body>
 
-<!-- TO-DO LIST -->
-<div class="section">
-    <h2>Today's Quests</h2>
+  <div id="counter">0</div>
 
-    <div class="todo-row">
-        <div class="todo-title">• complete fluids</div>
-        <span class="due-badge">Due 1 day ago 😭</span>
-    </div>
+  <div>
+    <button id="up">+</button>
+    <button id="down">−</button>
+  </div>
 
-    <div class="todo-row">
-        <div class="todo-title">• complete chemical equilibrium</div>
-        <span class="due-badge">Due 1 day ago 😭</span>
-    </div>
+  <!-- SOUND EFFECTS -->
+  <audio id="soundUp" src="minecraft-damage.mp3"></audio>
+  <audio id="soundDown" src="minecraft-death.mp3"></audio>
 
-    <div class="todo-row">
-        <div class="todo-title">• physics lec 3</div>
-        <span class="due-badge">Due in 2 hrs</span>
-    </div>
-
-    <div class="todo-row">
-        <div class="todo-title">• maths PYQs</div>
-        <span class="due-badge">Due in 4 hrs</span>
-    </div>
-
-</div>
-
-<!-- DAILY STATUS -->
-<div class="section">
-    <h2>Daily Status</h2>
-    🔥 Streak: 3 days <br>
-    🧊 Freeze Token: 1 <br>
-    ⏱ Study Today: 1h 20m <br>
-    🎯 Goal: 6h
-</div>
-
-<!-- COUNTER -->
-<div class="section" id="counter-box">
-    <button onclick="decrement()">➖</button>
-    <span id="count">0</span>
-    <button onclick="increment()">➕</button>
-</div>
-
-<script>
+  <script>
     let count = 0;
 
-    function increment() {
-        count++;
-        document.getElementById("count").innerText = count;
-    }
+    const counter = document.getElementById("counter");
+    const soundUp = document.getElementById("soundUp");
+    const soundDown = document.getElementById("soundDown");
 
-    function decrement() {
-        if (count > 0) {
-            count--;
-            document.getElementById("count").innerText = count;
-        }
-    }
-</script>
+    document.getElementById("up").onclick = () => {
+      count++;
+      counter.textContent = count;
+      soundUp.currentTime = 0;
+      soundUp.play();
+    };
+
+    document.getElementById("down").onclick = () => {
+      count--;
+      counter.textContent = count;
+      soundDown.currentTime = 0;
+      soundDown.play();
+    };
+  </script>
 
 </body>
 </html>
