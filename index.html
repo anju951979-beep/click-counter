@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AZD Minecraft Tracker</title>
+<title>AZD Minecraft Dashboard</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
@@ -11,13 +11,15 @@
     body {
         background: #191919;
         color: #eaeaea;
-        font-family: 'Press Start 2P', sans-serif;
+        font-family: 'Press Start 2P', monospace;
         margin: 0;
         padding: 20px;
     }
 
+    /* 🔥 WIDER WRAPPER */
     .wrapper {
-        max-width: 900px;
+        width: 100%;
+        max-width: 1200px;  /* Increased width */
         margin: auto;
     }
 
@@ -28,7 +30,6 @@
         color: #55ff55;
     }
 
-    /* Counter */
     #count {
         font-size: 60px;
         text-align: center;
@@ -40,220 +41,51 @@
         background: #333;
         color: #fff;
         border: none;
-        padding: 12px 28px;
-        font-size: 22px;
-        border-radius: 8px;
+        padding: 14px 32px;
+        font-size: 24px;
+        border-radius: 10px;
         cursor: pointer;
-        margin: 5px;
+        margin: 8px;
     }
 
-    /* XP BAR */
-    .xp-bar-bg {
-        width: 100%;
-        height: 22px;
-        background: #3b3b3b;
-        border: 3px solid #000;
-        margin-top: 20px;
-        border-radius: 4px;
+    button:hover {
+        background:#444;
     }
 
-    .xp-bar-fill {
-        height: 100%;
-        background: #4caf50;
-        width: 0%;
-        transition: 0.3s;
-    }
-
-    .level-text {
-        font-size: 14px;
-        text-align: right;
-        margin-top: 5px;
-        color: #55ff55;
-    }
-
-    /* STREAK */
-    .streak-box {
-        margin-top: 25px;
-        background: #111;
-        padding: 20px;
-        border: 2px solid #333;
-        border-radius: 8px;
-    }
-
-    /* TODAY / WEEK BARS */
+    /* TODAY + WEEK BARS – FULL WIDTH */
     .bar-bg {
         width: 100%;
-        height: 16px;
+        height: 18px;
         background: #333;
-        border-radius: 5px;
-        margin-top: 10px;
+        border-radius: 6px;
+        margin-top: 12px;
     }
+
     .bar-fill {
         height: 100%;
         background: #00aaff;
         width: 0%;
-        transition: 0.3s;
+        transition: 0.3s ease;
     }
 
-    /* TO DO */
+    /* STREAK BOX */
+    .streak-box {
+        margin-top: 30px;
+        background: #111;
+        padding: 22px;
+        border: 2px solid #333;
+        border-radius: 10px;
+    }
+
+    /* TO DO LIST – FULL WIDTH */
     .todo-box {
         background: #111;
-        padding: 20px;
-        border-radius: 8px;
-        margin-top: 25px;
+        padding: 22px;
+        border-radius: 10px;
+        margin-top: 30px;
         border: 2px solid #333;
     }
 
     input[type="text"] {
         width: 100%;
-        background: #000;
-        color: #fff;
-        font-family: 'Press Start 2P';
-        padding: 12px;
-        border: 1px solid #444;
-        border-radius: 6px;
-        font-size: 12px;
-    }
-
-    .todo-item {
-        padding: 12px;
-        border-bottom: 1px solid #333;
-        font-size: 12px;
-        cursor: pointer;
-    }
-
-    .todo-item.done {
-        text-decoration: line-through;
-        color: #777;
-    }
-
-</style>
-</head>
-<body>
-
-<div class="wrapper">
-
-<h1>🔥 AZD Minecraft Study Dashboard</h1>
-
-<!-- COUNT -->
-<div id="count">0</div>
-<button onclick="dec()">-</button>
-<button onclick="inc()">+</button>
-
-<!-- XP BAR -->
-<div class="xp-bar-bg"><div class="xp-bar-fill" id="xpFill"></div></div>
-<div class="level-text">Level: <span id="level">1</span></div>
-
-<!-- TODAY PROGRESS -->
-<h3 style="font-size:14px;margin-top:30px;">Today</h3>
-<div class="bar-bg"><div class="bar-fill" id="todayFill"></div></div>
-
-<!-- WEEK PROGRESS -->
-<h3 style="font-size:14px;margin-top:20px;">Week</h3>
-<div class="bar-bg"><div class="bar-fill" id="weekFill"></div></div>
-
-<!-- STREAK -->
-<div class="streak-box">
-    <h3 style="font-size:14px;">Streak 🔥</h3>
-    <div style="font-size:12px;">Days: <span id="streak">0</span> | Freeze Used: <span id="freeze">0</span>/1</div>
-</div>
-
-<!-- TODO -->
-<div class="todo-box">
-    <h3 style="font-size:14px;">To-Do Tasks</h3>
-    <input type="text" id="todoInput" placeholder="Add task + press enter">
-    <div id="todoList"></div>
-</div>
-
-</div>
-
-<script>
-// ---------------- COUNTER ----------------
-let count = parseInt(localStorage.getItem("hours") || 0);
-document.getElementById("count").innerText = count;
-
-// ---------------- XP SYSTEM ----------------
-let level = parseInt(localStorage.getItem("level") || 1);
-
-function updateXP() {
-    let xp = (count % 6) * (100 / 6);
-    if (count % 6 === 0 && count !== 0) {
-        level++;
-        localStorage.setItem("level", level);
-    }
-    document.getElementById("level").innerText = level;
-    document.getElementById("xpFill").style.width = xp + "%";
-}
-updateXP();
-
-// ---------------- TODAY & WEEK BARS ----------------
-function updateDayWeek() {
-    let today = count % 6;
-    let week = count % 42;
-
-    document.getElementById("todayFill").style.width = (today / 6) * 100 + "%";
-    document.getElementById("weekFill").style.width = (week / 42) * 100 + "%";
-}
-updateDayWeek();
-
-// ---------------- STREAK ----------------
-let streak = parseInt(localStorage.getItem("streak") || 0);
-let freeze = parseInt(localStorage.getItem("freeze") || 0);
-
-document.getElementById("streak").innerText = streak;
-document.getElementById("freeze").innerText = freeze;
-
-// ---------------- TODO LIST ----------------
-let todos = JSON.parse(localStorage.getItem("todos") || "[]");
-
-function renderTodos() {
-    let list = document.getElementById("todoList");
-    list.innerHTML = "";
-    todos.forEach((t, i) => {
-        let item = document.createElement("div");
-        item.className = "todo-item" + (t.done ? " done" : "");
-        item.innerText = t.text;
-        item.onclick = () => {
-            todos[i].done = !todos[i].done;
-            saveTodos();
-        };
-        list.appendChild(item);
-    });
-}
-
-function saveTodos() {
-    localStorage.setItem("todos", JSON.stringify(todos));
-    renderTodos();
-}
-
-renderTodos();
-
-document.getElementById("todoInput").addEventListener("keypress", function(e) {
-    if (e.key === "Enter") {
-        todos.push({text: this.value, done:false});
-        this.value = "";
-        saveTodos();
-    }
-});
-
-// ---------------- COUNT ACTIONS ----------------
-function inc() {
-    count++;
-    localStorage.setItem("hours", count);
-    document.getElementById("count").innerText = count;
-    updateXP();
-    updateDayWeek();
-}
-function dec() {
-    count--;
-    if (count < 0) count = 0;
-    localStorage.setItem("hours", count);
-    document.getElementById("count").innerText = count;
-    updateXP();
-    updateDayWeek();
-}
-</script>
-
-</body>
-</html>
-
+        bac
