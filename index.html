@@ -56,10 +56,10 @@
     <button id="reset" onclick="resetCount()">Reset</button>
   </div>
 
-  <!-- Sound effects -->
+  <!-- Sounds -->
   <audio id="levelUp" src="https://orangefreesounds.com/wp-content/uploads/2024/09/Level-up-sound.mp3"></audio>
-  <audio <audio id="damage" src="https://cdn.jsdelivr.net/gh/joshua-presley/mc-sounds/hurt.mp3"></audio>
-  
+  <audio id="hit" src="https://anju951979-beep.github.io/click-counter/hit.mp3"></audio>
+
   <script>
     let count = localStorage.getItem("tally")
       ? parseInt(localStorage.getItem("tally"))
@@ -67,16 +67,16 @@
     document.getElementById("count").textContent = count;
 
     const levelUp = document.getElementById("levelUp");
-    const damage = document.getElementById("damage");
+    const hit = document.getElementById("hit");
 
     function playLevelUp() {
       levelUp.currentTime = 0;
       levelUp.play();
     }
 
-    function playDamage() {
-      damage.currentTime = 0;
-      damage.play();
+    function playHit() {
+      hit.currentTime = 0;
+      hit.play();
     }
 
     function update() {
@@ -93,17 +93,18 @@
     function decrement() {
       count--;
       update();
-      playDamage();
+      playHit();
     }
 
     function resetCount() {
       count = 0;
       update();
-      playDamage();
+      playHit();
     }
   </script>
 </body>
 </html>
+
 
 
 
