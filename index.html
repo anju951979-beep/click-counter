@@ -24,7 +24,7 @@ body {
     padding: 30px;
     border-radius: 15px;
     box-shadow: 0 0 15px #000;
-    position: relative;
+    width: 350px;
 }
 #count {
     font-size: 60px;
@@ -44,50 +44,21 @@ button {
 }
 button:hover { background: #2c2c2c; }
 
-.particle {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    background: gold;
-    border-radius: 50%;
-    pointer-events: none;
-    animation: floatUp 0.8s forwards;
-}
-.damage-particle { background: red; }
+#reset { background:#0d0d0d; }
+#reset:hover { background:#2c2c2c; }
 
-@keyframes floatUp {
-    0% { transform: translateY(0) scale(1); opacity: 1; }
-    100% { transform: translateY(-50px) scale(0.5); opacity: 0; }
-}
-
-.floating-symbol {
-    position: absolute;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 48px;
-    font-weight: bold;
-    pointer-events: none;
-    animation: floatUpPlus 1s forwards;
-}
-
-@keyframes floatUpPlus {
-    0% { transform: translateY(0) scale(1); opacity: 1; }
-    100% { transform: translateY(-70px) scale(1.1); opacity: 0; }
-}
-
-/* Streak box */
 #streakBox {
     margin-top: 20px;
     padding: 12px;
     background: #111;
     border-radius: 10px;
-    font-size: 20px;
+    font-size: 18px;
 }
 </style>
 </head>
 
 <body>
 <div class="container">
-
     <h1>Hours Studied</h1>
 
     <div id="count">0</div>
@@ -101,10 +72,8 @@ button:hover { background: #2c2c2c; }
     </div>
 
     <!-- Sounds -->
-    <audio id="levelUp" src="https://raw.githubusercontent.com/aztrosound/mc-sfx/main/level-up.mp3"></audio>
+    <audio id="levelUp" src="https://cdn.pixabay.com/audio/2022/10/11/audio_3f8371db35.mp3"></audio>
     <audio id="damage" src="https://cdn.pixabay.com/audio/2022/03/15/audio_3e85204747.mp3"></audio>
-    <audio id="streakSound" src="https://raw.githubusercontent.com/aztrosound/mc-sfx/main/advancement.mp3"></audio>
-
 </div>
 
 <script>
@@ -112,120 +81,60 @@ button:hover { background: #2c2c2c; }
 let count = Number(localStorage.getItem("tally")) || 0;
 let streak = Number(localStorage.getItem("daily_streak")) || 0;
 let lastDay = localStorage.getItem("last_day") || "";
-let streakGivenToday = localStorage.getItem("streak_given") === "1";
 
 document.getElementById("count").textContent = count;
 document.getElementById("streak").textContent = streak;
 
-// SOUNDS
+// SOUND
 const levelUp = document.getElementById("levelUp");
 const damage = document.getElementById("damage");
-const streakSound = document.getElementById("streakSound");
 
-function playSound(s) {
-    const a = s.cloneNode();
-    a.volume = 1.0;
-    a.play();
+function playSound(audio) {
+    audio.currentTime = 0;
+    audio.play();
 }
 
-// UPDATE UI
+// UPDATE DISPLAY
 function update() {
     document.getElementById("count").textContent = count;
     localStorage.setItem("tally", count);
 }
 
-// PARTICLES & SYMBOLS
-function createParticle(x, y, type="level") {
-    const p = document.createElement("div");
-    p.className = "particle";
-    if (type === "damage") p.classList.add("damage-particle");
-    p.style.left = x + "px";
-    p.style.top = y + "px";
-    document.querySelector(".container").appendChild(p);
-    setTimeout(() => p.remove(), 800);
-}
-
-function createSymbol(x, y, symbol, color) {
-    const elem = document.createElement("div");
-    elem.className = "floating-symbol";
-    elem.textContent = symbol;
-    elem.style.color = color;
-    elem.style.left = x + "px";
-    elem.style.top = y + "px";
-    document.querySelector(".container").appendChild(elem);
-    setTimeout(() => elem.remove(), 1000);
-}
-
-// DAILY STREAK SYSTEM (INSTANT 6HR TRIGGER)
+// DAILY STREAK LOGIC
 function checkStreak() {
     const today = new Date().toDateString();
 
-    // New day?
-    if (today !== lastDay) {
-        if (count < 6) {
-            streak = 0;
-        }
-        document.getElementById("streak").textContent = streak;
+    if (lastDay !== today) {
+        if (count >= 6) streak++;
+        else streak = 0;
+
         localStorage.setItem("daily_streak", streak);
+        document.getElementById("streak").textContent = streak;
 
         lastDay = today;
         localStorage.setItem("last_day", today);
 
         count = 0;
-        localStorage.setItem("tally", 0);
         update();
-
-        streakGivenToday = false;
-        localStorage.setItem("streak_given", "0");
-        return;
-    }
-
-    // Instant streak increase when hitting 6 hours
-    if (!streakGivenToday && count >= 6) {
-        streak++;
-        streakGivenToday = true;
-
-        // Save
-        localStorage.setItem("daily_streak", streak);
-        localStorage.setItem("streak_given", "1");
-
-        document.getElementById("streak").textContent = streak;
-
-        // Play streak sound
-        playSound(streakSound);
     }
 }
+
+// Check streak every 10s
+setInterval(checkStreak, 10000);
 
 // BUTTONS
 function increment() {
     checkStreak();
-
     count++;
     update();
-
-    // XP sound (Minecraft)
     playSound(levelUp);
-
-    // Animation
-    const rect = document.getElementById("count").getBoundingClientRect();
-    const box = document.querySelector(".container").getBoundingClientRect();
-    createParticle(rect.width/2, rect.top - box.top, "level");
-    createSymbol(rect.width/2 - 20, rect.top - box.top - 20, "+", "gold");
 }
 
 function decrement() {
     checkStreak();
-
     count--;
-    if (count < 0) count = 0;
-
     update();
     playSound(damage);
-
-    const rect = document.getElementById("count").getBoundingClientRect();
-    const box = document.querySelector(".container").getBoundingClientRect();
-    createParticle(rect.width/2, rect.top - box.top, "damage");
-    createSymbol(rect.width/2 - 20, rect.top - box.top - 20, "−", "red");
 }
 
 function resetCount() {
@@ -233,9 +142,6 @@ function resetCount() {
     update();
     playSound(levelUp);
 }
-
-// Auto check every 10 sec
-setInterval(checkStreak, 10000);
 </script>
 
 </body>
