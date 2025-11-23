@@ -6,10 +6,81 @@
     <title>Tally Counter</title>
     <style>
         body {
-            background: #0d0d0d;
-            color: white;
+            background: #ffffff;
+            color: #222;
             font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: c
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+        }
+        #count {
+            font-size: 80px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 22px;
+            border: none;
+            border-radius: 12px;
+            margin: 10px;
+            cursor: pointer;
+            background: #f2f2f2;
+            color: #222;
+            transition: 0.2s;
+        }
+        button:hover {
+            background: #e6e6e6;
+        }
+        #reset {
+            background: #ff8080;
+        }
+        #reset:hover {
+            background: #ff4d4d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tally Counter</h1>
+        <div id="count">0</div>
+        <button onclick="decrement()">-</button>
+        <button onclick="increment()">+</button>
+        <br>
+        <button id="reset" onclick="resetCount()">Reset</button>
+    </div>
+
+    <script>
+        let count = localStorage.getItem("tally") 
+                    ? parseInt(localStorage.getItem("tally")) 
+                    : 0;
+        document.getElementById("count").textContent = count;
+
+        function update() {
+            document.getElementById("count").textContent = count;
+            localStorage.setItem("tally", count);
+        }
+
+        function increment() {
+            count++;
+            update();
+        }
+
+        function decrement() {
+            count--;
+            update();
+        }
+
+        function resetCount() {
+            count = 0;
+            update();
+        }
+    </script>
+</body>
+</html>
