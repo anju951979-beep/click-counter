@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Study Tally</title>
+<title>Tally</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
@@ -18,56 +18,55 @@
         margin:0;
     }
 
-    .container {
+    .box {
         background:#2a2a2a;
-        padding:40px;
-        border-radius:20px;
-        width:90vw;               /* WIDE */
-        max-width:1000px;         /* SUPER WIDE */
+        padding:30px;
+        border-radius:16px;
         text-align:center;
+        width:340px;
         box-shadow:0 0 20px #000;
     }
 
-    h1 { font-size:20px; margin-bottom:30px; }
+    h1 { font-size:18px; margin-bottom:25px; }
 
-    .count {
-        font-size:60px;
+    .num {
+        font-size:55px;
         margin:20px 0;
         color:#7CFC00;
     }
 
     button {
-        font-size:28px;
-        padding:20px 35px;
-        margin:15px;
+        font-size:26px;
+        padding:18px 28px;
+        margin:12px;
         border:none;
-        border-radius:14px;
+        border-radius:12px;
         cursor:pointer;
         background:#3a3a3a;
         color:white;
-        transition:0.2s;
     }
-    button:hover { background:#505050; }
+    button:hover { background:#4a4a4a; }
 
     .streak {
-        margin-top:40px;
-        font-size:18px;
+        margin-top:25px;
+        font-size:15px;
         color:#00eaff;
     }
 </style>
 </head>
 
 <body>
-<div class="container">
-    <h1>📘 Study Tally</h1>
 
-    <div class="count" id="hours">0</div>
+<div class="box">
+    <h1>Study Counter</h1>
 
-    <button onclick="addHour()">+</button>
-    <button onclick="removeHour()">–</button>
-    <button onclick="resetAll()">RESET</button>
+    <div class="num" id="hours">0</div>
 
-    <div class="streak" id="streakDisplay">🔥 Streak: 0 days</div>
+    <button onclick="add()">+</button>
+    <button onclick="minus()">-</button>
+    <button onclick="resetHours()">RESET</button>
+
+    <div class="streak" id="streakBox">🔥 Streak: 0</div>
 </div>
 
 <!-- Sounds -->
@@ -76,42 +75,44 @@
 <audio id="streakSound" src="https://cdn.jsdelivr.net/gh/joshualewisxyz/mc-sfx/orb.mp3"></audio>
 
 <script>
-let hours = parseFloat(localStorage.getItem("hours") || 0);
+let hours = parseInt(localStorage.getItem("hours") || 0);
 let streak = parseInt(localStorage.getItem("streak") || 0);
 
 document.getElementById("hours").innerText = hours;
-document.getElementById("streakDisplay").innerText = "🔥 Streak: " + streak + " days";
+document.getElementById("streakBox").innerText = "🔥 Streak: " + streak;
 
-function addHour() {
+function add() {
     hours += 1;
-    document.getElementById("hours").innerText = hours;
     localStorage.setItem("hours", hours);
+    document.getElementById("hours").innerText = hours;
 
     document.getElementById("plusSound").play();
 
-    if (hours >= 6 && hours % 6 === 0) {
+    // streak triggers at EXACTLY 6 hours
+    if (hours === 6) {
         streak++;
         localStorage.setItem("streak", streak);
-        document.getElementById("streakDisplay").innerText = "🔥 Streak: " + streak + " days";
+        document.getElementById("streakBox").innerText = "🔥 Streak: " + streak;
         document.getElementById("streakSound").play();
     }
 }
 
-function removeHour() {
+function minus() {
     if (hours > 0) {
         hours -= 1;
-        document.getElementById("hours").innerText = hours;
         localStorage.setItem("hours", hours);
+        document.getElementById("hours").innerText = hours;
         document.getElementById("minusSound").play();
     }
 }
 
-function resetAll() {
+function resetHours() {
     hours = 0;
-    document.getElementById("hours").innerText = 0;
     localStorage.setItem("hours", 0);
+    document.getElementById("hours").innerText = 0;
 }
 </script>
 
 </body>
 </html>
+
