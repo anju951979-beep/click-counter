@@ -1,283 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Minecraft Study Dashboard</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<title>Minecraft Notion Dashboard</title>
 
 <style>
     body {
         background: #191919;
-        color: #e0e0e0;
-        font-family: 'Press Start 2P', monospace;
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        padding: 40px;
-        margin: 0;
-    }
-
-    .container {
-        width: 900px; /* EXTRA WIDE */
-        background: #111;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 0 20px #000;
-    }
-
-    h1, h2 {
-        color: #6aff6a;
-        text-align: center;
-        font-size: 20px;
-        margin-bottom: 20px;
-    }
-
-    #count {
-        font-size: 60px;
-        text-align: center;
-        margin: 20px 0;
-        color: #fff;
-    }
-
-    button {
-        padding: 15px 30px;
-        margin: 10px;
-        font-size: 20px;
-        background: #333;
-        border: none;
-        border-radius: 8px;
-        color: #fff;
-        cursor: pointer;
-    }
-
-    button:hover {
-        background: #555;
+        color: white;
+        font-family: monospace;
+        padding: 20px;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .section {
-        margin-top: 35px;
-        padding: 20px;
-        background: #1a1a1a;
+        background: #1f1f1f;
+        border: 2px solid #000;
+        padding: 18px;
         border-radius: 10px;
-    }
-
-    /* Today & Week bars */
-    .bar {
-        height: 20px;
-        background: #333;
-        border-radius: 10px;
+        margin-bottom: 25px;
         width: 100%;
-        margin-top: 10px;
-        overflow: hidden;
     }
 
-    .fill {
-        height: 100%;
-        width: 0%;
-        background: #4caf50;
-        transition: 0.3s ease;
-    }
-
-    /* Streak */
-    #streak {
+    h2 {
+        margin-top: 0;
+        color: #22ff22;
         font-size: 22px;
-        color: #6aff6a;
+        text-shadow: 0 0 4px #22ff22;
     }
 
-    /* To-Do List */
-    .task {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: #222;
-        padding: 12px;
-        border-radius: 8px;
-        margin-bottom: 10px;
+    .todo-row {
+        background: #111;
+        padding: 14px;
+        border-radius: 12px;
+        margin: 12px 0;
+        border-left: 4px solid #ff4444;
     }
 
-    .task label {
-        color: #fff;
-        font-size: 15px;
+    .todo-title {
+        font-size: 18px;
+        margin-bottom: 6px;
     }
 
-    .due {
-        color: #ff4444;
+    .due-badge {
+        background: #ff3b3b;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 6px;
         font-size: 14px;
-        margin-left: 10px;
+        display: inline-block;
+        margin-right: 6px;
+    }
+    
+    #counter-box {
+        text-align: center;
+        padding: 20px;
+        background: #111;
+        border-radius: 12px;
     }
 
-    input[type="checkbox"] {
-        transform: scale(1.6);
-        margin-right: 15px;
+    button {
+        font-size: 28px;
+        padding: 10px 18px;
+        margin: 8px;
+        cursor: pointer;
+        background: #2b2b2b;
+        color: white;
+        border: 2px solid #000;
+        border-radius: 8px;
     }
 
+    #count {
+        font-size: 32px;
+        padding: 10px 20px;
+        display: inline-block;
+        min-width: 40px;
+    }
 </style>
+
 </head>
+
 <body>
 
-<div class="container">
+<!-- TO-DO LIST -->
+<div class="section">
+    <h2>Today's Quests</h2>
 
-    <h1>Minecraft Study Dashboard</h1>
-
-    <!-- HOURS COUNTER -->
-    <div id="count">0</div>
-    <div style="text-align:center;">
-        <button onclick="decrement()">-</button>
-        <button onclick="increment()">+</button>
-        <button onclick="resetCount()">Reset</button>
+    <div class="todo-row">
+        <div class="todo-title">• complete fluids</div>
+        <span class="due-badge">Due 1 day ago 😭</span>
     </div>
 
-    <!-- TODAY PROGRESS -->
-    <div class="section">
-        <h2>Today</h2>
-        <div class="bar"><div id="todayFill" class="fill"></div></div>
+    <div class="todo-row">
+        <div class="todo-title">• complete chemical equilibrium</div>
+        <span class="due-badge">Due 1 day ago 😭</span>
     </div>
 
-    <!-- WEEK PROGRESS -->
-    <div class="section">
-        <h2>This Week</h2>
-        <div class="bar"><div id="weekFill" class="fill"></div></div>
+    <div class="todo-row">
+        <div class="todo-title">• physics lec 3</div>
+        <span class="due-badge">Due in 2 hrs</span>
     </div>
 
-    <!-- STREAK SYSTEM -->
-    <div class="section">
-        <h2>Streak</h2>
-        <div id="streak">🔥 0 Days</div>
-        <div style="color:#bbb; font-size:14px; margin-top:5px;">
-            (One-day freeze protection)
-        </div>
-    </div>
-
-    <!-- TO-DO LIST -->
-    <div class="section">
-        <h2>To-Do List</h2>
-        <div id="todoList"></div>
-
-        <input id="newTask" type="text" placeholder="Task" style="width:60%;padding:10px;border-radius:8px;">
-        <input id="dueTime" type="number" placeholder="Due (hrs)" style="width:20%;padding:10px;border-radius:8px;">
-        <button onclick="addTask()">Add</button>
+    <div class="todo-row">
+        <div class="todo-title">• maths PYQs</div>
+        <span class="due-badge">Due in 4 hrs</span>
     </div>
 
 </div>
 
+<!-- DAILY STATUS -->
+<div class="section">
+    <h2>Daily Status</h2>
+    🔥 Streak: 3 days <br>
+    🧊 Freeze Token: 1 <br>
+    ⏱ Study Today: 1h 20m <br>
+    🎯 Goal: 6h
+</div>
+
+<!-- COUNTER -->
+<div class="section" id="counter-box">
+    <button onclick="decrement()">➖</button>
+    <span id="count">0</span>
+    <button onclick="increment()">➕</button>
+</div>
+
 <script>
-// -----------------------------
-// LOAD DATA
-// -----------------------------
-let count = parseInt(localStorage.getItem("tally")) || 0;
-document.getElementById("count").textContent = count;
+    let count = 0;
 
-let streak = parseInt(localStorage.getItem("streak")) || 0;
-let lastStudyDay = localStorage.getItem("lastStudyDay") || "";
-updateStreakDisplay();
-
-let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
-renderTasks();
-
-
-// -----------------------------
-// COUNTER
-// -----------------------------
-function update() {
-    document.getElementById("count").textContent = count;
-    localStorage.setItem("tally", count);
-
-    updateBars();
-    updateStreak();
-}
-
-function increment() {
-    count++;
-    update();
-}
-
-function decrement() {
-    if (count > 0) count--;
-    update();
-}
-
-function resetCount() {
-    count = 0;
-    update();
-}
-
-
-// -----------------------------
-// TODAY & WEEK BARS
-// -----------------------------
-function updateBars() {
-    let todayPercent = Math.min((count / 6) * 100, 100);
-    document.getElementById("todayFill").style.width = todayPercent + "%";
-
-    let weekHours = parseInt(localStorage.getItem("weekHours")) || 0;
-    weekHours += 0;
-    let weekPercent = Math.min((weekHours / 42) * 100, 100);
-    document.getElementById("weekFill").style.width = weekPercent + "%";
-}
-
-
-// -----------------------------
-// STREAK SYSTEM (Option A)
-// -----------------------------
-function updateStreak() {
-    let today = new Date().toDateString();
-
-    if (count > 0 && today !== lastStudyDay) {
-        streak++;
-        lastStudyDay = today;
-        localStorage.setItem("lastStudyDay", lastStudyDay);
-        localStorage.setItem("streak", streak);
+    function increment() {
+        count++;
+        document.getElementById("count").innerText = count;
     }
 
-    updateStreakDisplay();
-}
-
-function updateStreakDisplay() {
-    document.getElementById("streak").textContent = `🔥 ${streak} Days`;
-}
-
-
-// -----------------------------
-// TO-DO LIST
-// -----------------------------
-function renderTasks() {
-    let list = document.getElementById("todoList");
-    list.innerHTML = "";
-
-    tasks.forEach((t, i) => {
-        list.innerHTML += `
-        <div class="task">
-            <label>
-                <input type="checkbox" ${t.done ? "checked" : ""} onclick="toggleTask(${i})">
-                ${t.text}
-            </label>
-            <div class="due">${t.due} hrs</div>
-        </div>`;
-    });
-}
-
-function addTask() {
-    let text = document.getElementById("newTask").value;
-    let due = document.getElementById("dueTime").value;
-
-    if (!text || !due) return;
-
-    tasks.push({ text, due, done: false });
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-
-    document.getElementById("newTask").value = "";
-    document.getElementById("dueTime").value = "";
-
-    renderTasks();
-}
-
-function toggleTask(i) {
-    tasks[i].done = !tasks[i].done;
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-    renderTasks();
-}
+    function decrement() {
+        if (count > 0) {
+            count--;
+            document.getElementById("count").innerText = count;
+        }
+    }
 </script>
 
 </body>
