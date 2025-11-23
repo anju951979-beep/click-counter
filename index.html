@@ -3,253 +3,174 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hours Studied + Streak</title>
+<title>Minecraft Study Streak</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
 <style>
 body {
-    background: #1e1e1e;
-    color: #f0f0f0;
+    background: #1e11e1;
+    color: #fff;
     font-family: 'Press Start 2P', monospace;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
+    text-align: center;
+    padding-top: 40px;
 }
 
 .container {
-    text-align: center;
     background: #191919;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 0 15px #000;
-    position: relative;
-    overflow: visible;
+    width: 420px;
+    margin: auto;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px black;
 }
 
-#count {
-    font-size: 50px;
-    margin: 15px 0;
-    font-weight: bold;
+#timer {
+    font-size: 42px;
+    margin: 20px 0;
 }
 
 button {
-    padding: 12px 30px;
+    padding: 12px 20px;
     font-size: 16px;
     border: none;
     border-radius: 10px;
     margin: 8px;
-    cursor: pointer;
     background: #0d0d0d;
-    color: #f0f0f0;
-    transition: 0.2s;
+    color: white;
+    cursor: pointer;
 }
 
 button:hover {
-    background: #2c2c2c;
+    background: #333;
 }
 
-#reset:hover {
-    background:#2c2c2c;
-}
-
-/* Particles */
-.particle {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    background: gold;
-    border-radius: 50%;
-    pointer-events: none;
-    animation: floatUp 0.8s forwards;
-}
-
-.damage-particle {
-    background: red;
-}
-
-@keyframes floatUp {
-    0% { transform: translateY(0) scale(1); opacity: 1; }
-    100% { transform: translateY(-50px) scale(0.5); opacity: 0; }
-}
-
-/* Floating + or - */
-.floating-symbol {
-    position: absolute;
-    font-family: 'Press Start 2P';
-    font-size: 40px;
-    pointer-events: none;
-    animation: floatUpPlus 1s forwards;
-}
-
-@keyframes floatUpPlus {
-    0% { transform: translateY(0) scale(1); opacity: 1; }
-    100% { transform: translateY(-70px) scale(1.1); opacity: 0; }
-}
-
-/* Streak text */
 #streakBox {
-    font-size: 20px;
+    background: #111;
+    padding: 15px;
     margin-top: 20px;
+    border-radius: 10px;
+    font-size: 20px;
 }
 </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Study Hours</h1>
+    <h1>Study Timer</h1>
 
-    <div id="count">0</div>
+    <div id="timer">00:00:00</div>
 
-    <button onclick="decrement()">-</button>
-    <button onclick="increment()">+</button>
-
-    <br>
-    <button id="reset" onclick="resetCount()">Reset Hours</button>
+    <button onclick="startTimer()">Start</button>
+    <button onclick="stopTimer()">Stop</button>
+    <button onclick="resetTimer()">Reset</button>
 
     <div id="streakBox">
-        🔥 Daily Streak: <span id="streak">0</span>
+        Daily Streak: <span id="streak">0</span> 🔥
     </div>
-
-    <!-- Sounds -->
-    <audio id="levelUp" src="https://orangefreesounds.com/wp-content/uploads/2024/09/Level-up-sound.mp3"></audio>
-    <audio id="damage" src="https://cdn.pixabay.com/audio/2022/03/15/audio_3e85204747.mp3"></audio>
 </div>
 
 <script>
-/* ---------------------------------------------------------
-   HOURS + COUNTER
----------------------------------------------------------- */
-let count = localStorage.getItem("hours")
-    ? parseFloat(localStorage.getItem("hours"))
-    : 0;
+// -------------------------------
+// TIMER
+// -------------------------------
 
-document.getElementById("count").textContent = count;
+let seconds = 0;
+let interval = null;
 
-const levelUp = document.getElementById("levelUp");
-const damage = document.getElementById("damage");
+// force numeric
+seconds = Number(localStorage.getItem("mc_seconds")) || 0;
 
-function playSound(sound) {
-    const s = sound.cloneNode();
-    s.play();
-}
+// streak system
+let streak = Number(localStorage.getItem("mc_streak")) || 0;
+let lastDate = localStorage.getItem("mc_last_date") || "";
 
-function updateHours() {
-    document.getElementById("count").textContent = count;
-    localStorage.setItem("hours", count);
-}
-
-/* Particles */
-function createParticle(x, y, type="level") {
-    const p = document.createElement("div");
-    p.className = "particle";
-    if (type === "damage") p.classList.add("damage-particle");
-    p.style.left = x + "px";
-    p.style.top = y + "px";
-
-    document.querySelector(".container").appendChild(p);
-    setTimeout(() => p.remove(), 800);
-}
-
-function createSymbol(x, y, symbol, color) {
-    const s = document.createElement("div");
-    s.className = "floating-symbol";
-    s.textContent = symbol;
-    s.style.color = color;
-    s.style.left = x + "px";
-    s.style.top = y + "px";
-
-    document.querySelector(".container").appendChild(s);
-    setTimeout(() => s.remove(), 1000);
-}
-
-function increment() {
-    count += 0.1; // 0.1 hr = 6 minutes each click
-    count = parseFloat(count.toFixed(1));
-    updateHours();
-    playSound(levelUp);
-
-    createVisual("+", "gold", "level");
-    checkStreak();
-}
-
-function decrement() {
-    count -= 0.1;
-    if (count < 0) count = 0;
-    count = parseFloat(count.toFixed(1));
-    updateHours();
-    playSound(damage);
-
-    createVisual("−", "red", "damage");
-}
-
-function createVisual(symbol, color, type) {
-    const rect = document.getElementById("count").getBoundingClientRect();
-    const box = document.querySelector(".container").getBoundingClientRect();
-
-    const x = rect.width/2;
-    const y = rect.top - box.top;
-
-    createParticle(x, y, type);
-    createSymbol(x - 20, y - 20, symbol, color);
-}
-
-function resetCount() {
-    count = 0;
-    updateHours();
-    playSound(levelUp);
-}
-
-/* ---------------------------------------------------------
-   STREAK SYSTEM — MUST STUDY 6 HOURS DAILY
----------------------------------------------------------- */
-
-let streak = localStorage.getItem("streak")
-    ? parseInt(localStorage.getItem("streak"))
-    : 0;
-
+// load streak UI
 document.getElementById("streak").textContent = streak;
 
-let lastDay = localStorage.getItem("lastDay") || "";
+// convert seconds -> HH:MM:SS
+function updateTimer() {
+    seconds = Number(seconds) + 1; // force number every time
+    
+    localStorage.setItem("mc_seconds", seconds);
 
-/* Check streak logic */
-function checkStreak() {
-    const today = new Date().toDateString();
+    let hrs = Math.floor(seconds / 3600);
+    let mins = Math.floor((seconds % 3600) / 60);
+    let secs = seconds % 60;
 
-    // Only check after day is completed
-    if (today !== lastDay && count >= 6) {
-        streak++;
-        localStorage.setItem("streak", streak);
-        lastDay = today;
-        localStorage.setItem("lastDay", lastDay);
-        document.getElementById("streak").textContent = streak;
-        playSound(levelUp);
+    document.getElementById("timer").textContent =
+        String(hrs).padStart(2, "0") + ":" +
+        String(mins).padStart(2, "0") + ":" +
+        String(secs).padStart(2, "0");
+
+    checkDailyGoal();
+}
+
+function startTimer() {
+    if (!interval) {
+        interval = setInterval(updateTimer, 1000);
     }
 }
 
-/* AUTO MIDNIGHT CHECK — break streak if < 6 hours */
+function stopTimer() {
+    clearInterval(interval);
+    interval = null;
+}
+
+function resetTimer() {
+    stopTimer();
+    seconds = 0;
+    localStorage.setItem("mc_seconds", 0);
+    document.getElementById("timer").textContent = "00:00:00";
+}
+
+// -------------------------------
+// STREAK SYSTEM
+// -------------------------------
+
+function checkDailyGoal() {
+    const today = new Date().toDateString();
+
+    let hours = Math.floor(seconds / 3600);
+
+    // if today already scored streak → do nothing
+    if (today === lastDate) return;
+
+    // hit 6+ hours?
+    if (hours >= 6) {
+        streak++;
+        lastDate = today;
+
+        localStorage.setItem("mc_streak", streak);
+        localStorage.setItem("mc_last_date", today);
+
+        document.getElementById("streak").textContent = streak;
+    }
+}
+
+// auto-break streak at midnight if not reached 6 hrs
 setInterval(() => {
     const today = new Date().toDateString();
 
-    if (lastDay !== today) {
-        // If previous day was missed
-        if (count < 6 && lastDay !== "") {
+    if (lastDate !== today) {
+        // if day changed AND not achieved 6hrs → break streak
+        let hours = Math.floor(seconds / 3600);
+
+        if (hours < 6) {
             streak = 0;
-            localStorage.setItem("streak", 0);
+            localStorage.setItem("mc_streak", 0);
             document.getElementById("streak").textContent = 0;
         }
 
-        // New day → reset hours
-        count = 0;
-        updateHours();
-        lastDay = today;
-        localStorage.setItem("lastDay", today);
+        // reset timer for new day
+        seconds = 0;
+        localStorage.setItem("mc_seconds", 0);
     }
-}, 5000); // checks every 5 seconds
+}, 30000); // checks every 30 sec
 
 </script>
 
 </body>
 </html>
+
+
