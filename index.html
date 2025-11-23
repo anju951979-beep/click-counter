@@ -88,4 +88,134 @@
 
     input[type="text"] {
         width: 100%;
-        bac
+        background: #000;
+        color: #fff;
+        padding: 14px;
+        border: 1px solid #444;
+        border-radius: 8px;
+        font-size: 12px;
+    }
+
+    .todo-item {
+        padding: 12px;
+        border-bottom: 1px solid #333;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    .todo-item.done {
+        text-decoration: line-through;
+        color: #777;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+<h1>🔥 AZD Minecraft Study Dashboard</h1>
+
+<!-- COUNTER -->
+<div id="count">0</div>
+<div style="text-align:center;">
+    <button onclick="dec()">-</button>
+    <button onclick="inc()">+</button>
+</div>
+
+<!-- TODAY PROGRESS -->
+<h3 style="font-size:14px;margin-top:35px;">Today</h3>
+<div class="bar-bg"><div class="bar-fill" id="todayFill"></div></div>
+
+<!-- WEEK PROGRESS -->
+<h3 style="font-size:14px;margin-top:22px;">Week</h3>
+<div class="bar-bg"><div class="bar-fill" id="weekFill"></div></div>
+
+<!-- STREAK -->
+<div class="streak-box">
+    <h3 style="font-size:14px;">Streak 🔥</h3>
+    <div style="font-size:12px;">Days: <span id="streak">0</span> | Freeze Used: <span id="freeze">0</span>/1</div>
+</div>
+
+<!-- TODO LIST -->
+<div class="todo-box">
+    <h3 style="font-size:14px;">To-Do Tasks</h3>
+    <input type="text" id="todoInput" placeholder="Add task + press Enter">
+    <div id="todoList"></div>
+</div>
+
+</div>
+
+<script>
+// ---------------- COUNT ----------------
+let count = parseInt(localStorage.getItem("hours") || 0);
+document.getElementById("count").innerText = count;
+
+// ---------------- TODAY + WEEK BARS ----------------
+function updateBars() {
+    let today = count % 6;
+    let week = count % 42;
+
+    document.getElementById("todayFill").style.width = (today / 6) * 100 + "%";
+    document.getElementById("weekFill").style.width = (week / 42) * 100 + "%";
+}
+updateBars();
+
+// ---------------- STREAK ----------------
+let streak = parseInt(localStorage.getItem("streak") || 0);
+let freeze = parseInt(localStorage.getItem("freeze") || 0);
+
+document.getElementById("streak").innerText = streak;
+document.getElementById("freeze").innerText = freeze;
+
+// ---------------- TODO LIST ----------------
+let todos = JSON.parse(localStorage.getItem("todos") || "[]");
+
+function renderTodos() {
+    let list = document.getElementById("todoList");
+    list.innerHTML = "";
+    todos.forEach((t, i) => {
+        let item = document.createElement("div");
+        item.className = "todo-item" + (t.done ? " done" : "");
+        item.innerText = t.text;
+        item.onclick = () => {
+            todos[i].done = !todos[i].done;
+            saveTodos();
+        };
+        list.appendChild(item);
+    });
+}
+
+function saveTodos() {
+    localStorage.setItem("todos", JSON.stringify(todos));
+    renderTodos();
+}
+
+renderTodos();
+
+document.getElementById("todoInput").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        todos.push({text: this.value, done:false});
+        this.value = "";
+        saveTodos();
+    }
+});
+
+// ---------------- UPDATE COUNT ----------------
+function inc() {
+    count++;
+    localStorage.setItem("hours", count);
+    document.getElementById("count").innerText = count;
+    updateBars();
+}
+
+function dec() {
+    if (count > 0) count--;
+    localStorage.setItem("hours", count);
+    document.getElementById("count").innerText = count;
+    updateBars();
+}
+</script>
+
+</body>
+</html>
