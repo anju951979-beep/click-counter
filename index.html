@@ -56,11 +56,21 @@
         <button id="reset" onclick="resetCount()">Reset</button>
     </div>
 
+    <!-- Beep sound -->
+    <audio id="beepSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
     <script>
         let count = localStorage.getItem("tally") 
                     ? parseInt(localStorage.getItem("tally")) 
                     : 0;
         document.getElementById("count").textContent = count;
+
+        const beep = document.getElementById("beepSound");
+
+        function playBeep() {
+            beep.currentTime = 0;
+            beep.play();
+        }
 
         function update() {
             document.getElementById("count").textContent = count;
@@ -70,17 +80,22 @@
         function increment() {
             count++;
             update();
+            playBeep();
         }
 
         function decrement() {
             count--;
             update();
+            playBeep();
         }
 
         function resetCount() {
             count = 0;
             update();
+            playBeep();
         }
     </script>
 </body>
 </html>
+
+
