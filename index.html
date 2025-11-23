@@ -20,44 +20,44 @@ body {
 }
 .container {
     text-align: center;
-    background: #2c2c2c;
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 0 20px #000;
+    background: #191919; /* Notion-dark background */
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 15px #000;
     position: relative;
     overflow: visible;
 }
 #count {
-    font-size: 80px;
-    margin: 20px 0;
+    font-size: 60px; /* smaller font */
+    margin: 15px 0;
     font-weight: bold;
 }
 button {
-    padding: 15px 35px;
-    font-size: 22px;
+    padding: 12px 30px;
+    font-size: 18px; /* smaller */
     border: none;
-    border-radius: 12px;
-    margin: 10px;
+    border-radius: 10px;
+    margin: 8px;
     cursor: pointer;
-    background: #4c4c4c;
+    background: #0d0d0d; /* darker button to blend */
     color: #f0f0f0;
     transition: 0.2s;
 }
 button:hover {
-    background: #6c6c6c;
+    background: #2c2c2c;
 }
 #reset {
-    background:#ff5555;
+    background:#0d0d0d;
 }
 #reset:hover {
-    background:#ff2222;
+    background:#2c2c2c;
 }
 
 /* Particle styles */
 .particle {
     position: absolute;
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     background: gold;
     border-radius: 50%;
     pointer-events: none;
@@ -68,21 +68,21 @@ button:hover {
 }
 @keyframes floatUp {
     0% { transform: translateY(0) scale(1); opacity: 1; }
-    100% { transform: translateY(-60px) scale(0.5); opacity: 0; }
+    100% { transform: translateY(-50px) scale(0.5); opacity: 0; }
 }
 
 /* Big floating + / - */
 .floating-symbol {
     position: absolute;
     font-family: 'Press Start 2P', monospace;
-    font-size: 64px;
+    font-size: 48px; /* smaller */
     font-weight: bold;
     pointer-events: none;
     animation: floatUpPlus 1s forwards;
 }
 @keyframes floatUpPlus {
     0% { transform: translateY(0) scale(1); opacity: 1; }
-    100% { transform: translateY(-80px) scale(1.2); opacity: 0; }
+    100% { transform: translateY(-70px) scale(1.1); opacity: 0; }
 }
 </style>
 </head>
@@ -150,10 +150,8 @@ function increment() {
     const rect = document.getElementById("count").getBoundingClientRect();
     const containerRect = document.querySelector(".container").getBoundingClientRect();
     
-    // particle
     createParticle(rect.width/2, rect.top - containerRect.top, "level");
-    // big +
-    createSymbol(rect.width/2 - 32, rect.top - containerRect.top - 30, "+", "gold");
+    createSymbol(rect.width/2 - 24, rect.top - containerRect.top - 20, "+", "gold");
 }
 
 function decrement() {
@@ -164,10 +162,8 @@ function decrement() {
     const rect = document.getElementById("count").getBoundingClientRect();
     const containerRect = document.querySelector(".container").getBoundingClientRect();
     
-    // particle
     createParticle(rect.width/2, rect.top - containerRect.top, "damage");
-    // big -
-    createSymbol(rect.width/2 - 32, rect.top - containerRect.top - 30, "−", "red");
+    createSymbol(rect.width/2 - 24, rect.top - containerRect.top - 20, "−", "red");
 }
 
 function resetCount() {
