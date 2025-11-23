@@ -1,116 +1,241 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Tally</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hours Studied</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
 <style>
-    body {
-        background:#1e1e1e;
-        color:white;
-        font-family:'Press Start 2P', monospace;
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        height:100vh;
-        margin:0;
-    }
+body {
+    background: #1e1e1e;
+    color: #f0f0f0;
+    font-family: 'Press Start 2P', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+.container {
+    text-align: center;
+    background: #191919;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 15px #000;
+    position: relative;
+}
+#count {
+    font-size: 60px;
+    margin: 15px 0;
+    font-weight: bold;
+}
+button {
+    padding: 12px 30px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    margin: 8px;
+    cursor: pointer;
+    background: #0d0d0d;
+    color: #f0f0f0;
+    transition: 0.2s;
+}
+button:hover { background: #2c2c2c; }
 
-    .box {
-        background:#2a2a2a;
-        padding:30px;
-        border-radius:16px;
-        text-align:center;
-        width:340px;
-        box-shadow:0 0 20px #000;
-    }
+.particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: gold;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: floatUp 0.8s forwards;
+}
+.damage-particle { background: red; }
 
-    h1 { font-size:18px; margin-bottom:25px; }
+@keyframes floatUp {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-50px) scale(0.5); opacity: 0; }
+}
 
-    .num {
-        font-size:55px;
-        margin:20px 0;
-        color:#7CFC00;
-    }
+.floating-symbol {
+    position: absolute;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 48px;
+    font-weight: bold;
+    pointer-events: none;
+    animation: floatUpPlus 1s forwards;
+}
 
-    button {
-        font-size:26px;
-        padding:18px 28px;
-        margin:12px;
-        border:none;
-        border-radius:12px;
-        cursor:pointer;
-        background:#3a3a3a;
-        color:white;
-    }
-    button:hover { background:#4a4a4a; }
+@keyframes floatUpPlus {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-70px) scale(1.1); opacity: 0; }
+}
 
-    .streak {
-        margin-top:25px;
-        font-size:15px;
-        color:#00eaff;
-    }
+/* Streak box */
+#streakBox {
+    margin-top: 20px;
+    padding: 12px;
+    background: #111;
+    border-radius: 10px;
+    font-size: 20px;
+}
 </style>
 </head>
 
 <body>
+<div class="container">
 
-<div class="box">
-    <h1>Study Counter</h1>
+    <h1>Hours Studied</h1>
 
-    <div class="num" id="hours">0</div>
+    <div id="count">0</div>
+    <button onclick="decrement()">-</button>
+    <button onclick="increment()">+</button>
+    <br>
+    <button id="reset" onclick="resetCount()">Reset</button>
 
-    <button onclick="add()">+</button>
-    <button onclick="minus()">-</button>
-    <button onclick="resetHours()">RESET</button>
+    <div id="streakBox">
+        Streak: <span id="streak">0</span> 🔥
+    </div>
 
-    <div class="streak" id="streakBox">🔥 Streak: 0</div>
+    <!-- Sounds -->
+    <audio id="levelUp" src="https://raw.githubusercontent.com/aztrosound/mc-sfx/main/level-up.mp3"></audio>
+    <audio id="damage" src="https://cdn.pixabay.com/audio/2022/03/15/audio_3e85204747.mp3"></audio>
+    <audio id="streakSound" src="https://raw.githubusercontent.com/aztrosound/mc-sfx/main/advancement.mp3"></audio>
+
 </div>
 
-<!-- Sounds -->
-<audio id="plusSound" src="https://cdn.jsdelivr.net/gh/joshualewisxyz/mc-sfx/level-up.mp3"></audio>
-<audio id="minusSound" src="https://cdn.jsdelivr.net/gh/joshualewisxyz/mc-sfx/hit.mp3"></audio>
-<audio id="streakSound" src="https://cdn.jsdelivr.net/gh/joshualewisxyz/mc-sfx/orb.mp3"></audio>
-
 <script>
-let hours = parseInt(localStorage.getItem("hours") || 0);
-let streak = parseInt(localStorage.getItem("streak") || 0);
+// LOAD VALUES
+let count = Number(localStorage.getItem("tally")) || 0;
+let streak = Number(localStorage.getItem("daily_streak")) || 0;
+let lastDay = localStorage.getItem("last_day") || "";
+let streakGivenToday = localStorage.getItem("streak_given") === "1";
 
-document.getElementById("hours").innerText = hours;
-document.getElementById("streakBox").innerText = "🔥 Streak: " + streak;
+document.getElementById("count").textContent = count;
+document.getElementById("streak").textContent = streak;
 
-function add() {
-    hours += 1;
-    localStorage.setItem("hours", hours);
-    document.getElementById("hours").innerText = hours;
+// SOUNDS
+const levelUp = document.getElementById("levelUp");
+const damage = document.getElementById("damage");
+const streakSound = document.getElementById("streakSound");
 
-    document.getElementById("plusSound").play();
+function playSound(s) {
+    const a = s.cloneNode();
+    a.volume = 1.0;
+    a.play();
+}
 
-    // streak triggers at EXACTLY 6 hours
-    if (hours === 6) {
+// UPDATE UI
+function update() {
+    document.getElementById("count").textContent = count;
+    localStorage.setItem("tally", count);
+}
+
+// PARTICLES & SYMBOLS
+function createParticle(x, y, type="level") {
+    const p = document.createElement("div");
+    p.className = "particle";
+    if (type === "damage") p.classList.add("damage-particle");
+    p.style.left = x + "px";
+    p.style.top = y + "px";
+    document.querySelector(".container").appendChild(p);
+    setTimeout(() => p.remove(), 800);
+}
+
+function createSymbol(x, y, symbol, color) {
+    const elem = document.createElement("div");
+    elem.className = "floating-symbol";
+    elem.textContent = symbol;
+    elem.style.color = color;
+    elem.style.left = x + "px";
+    elem.style.top = y + "px";
+    document.querySelector(".container").appendChild(elem);
+    setTimeout(() => elem.remove(), 1000);
+}
+
+// DAILY STREAK SYSTEM (INSTANT 6HR TRIGGER)
+function checkStreak() {
+    const today = new Date().toDateString();
+
+    // New day?
+    if (today !== lastDay) {
+        if (count < 6) {
+            streak = 0;
+        }
+        document.getElementById("streak").textContent = streak;
+        localStorage.setItem("daily_streak", streak);
+
+        lastDay = today;
+        localStorage.setItem("last_day", today);
+
+        count = 0;
+        localStorage.setItem("tally", 0);
+        update();
+
+        streakGivenToday = false;
+        localStorage.setItem("streak_given", "0");
+        return;
+    }
+
+    // Instant streak increase when hitting 6 hours
+    if (!streakGivenToday && count >= 6) {
         streak++;
-        localStorage.setItem("streak", streak);
-        document.getElementById("streakBox").innerText = "🔥 Streak: " + streak;
-        document.getElementById("streakSound").play();
+        streakGivenToday = true;
+
+        // Save
+        localStorage.setItem("daily_streak", streak);
+        localStorage.setItem("streak_given", "1");
+
+        document.getElementById("streak").textContent = streak;
+
+        // Play streak sound
+        playSound(streakSound);
     }
 }
 
-function minus() {
-    if (hours > 0) {
-        hours -= 1;
-        localStorage.setItem("hours", hours);
-        document.getElementById("hours").innerText = hours;
-        document.getElementById("minusSound").play();
-    }
+// BUTTONS
+function increment() {
+    checkStreak();
+
+    count++;
+    update();
+
+    // XP sound (Minecraft)
+    playSound(levelUp);
+
+    // Animation
+    const rect = document.getElementById("count").getBoundingClientRect();
+    const box = document.querySelector(".container").getBoundingClientRect();
+    createParticle(rect.width/2, rect.top - box.top, "level");
+    createSymbol(rect.width/2 - 20, rect.top - box.top - 20, "+", "gold");
 }
 
-function resetHours() {
-    hours = 0;
-    localStorage.setItem("hours", 0);
-    document.getElementById("hours").innerText = 0;
+function decrement() {
+    checkStreak();
+
+    count--;
+    if (count < 0) count = 0;
+
+    update();
+    playSound(damage);
+
+    const rect = document.getElementById("count").getBoundingClientRect();
+    const box = document.querySelector(".container").getBoundingClientRect();
+    createParticle(rect.width/2, rect.top - box.top, "damage");
+    createSymbol(rect.width/2 - 20, rect.top - box.top - 20, "−", "red");
 }
+
+function resetCount() {
+    count = 0;
+    update();
+    playSound(levelUp);
+}
+
+// Auto check every 10 sec
+setInterval(checkStreak, 10000);
 </script>
 
 </body>
