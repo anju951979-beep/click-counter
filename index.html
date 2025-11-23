@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Minecraft Tally Counter</title>
-
+<title>Hours studied</title>
 <!-- Minecraft-style font -->
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
@@ -12,7 +11,7 @@
     body {
         background: #1e1e1e;
         color: #f0f0f0;
-        font-family: 'Arial', sans-serif;
+        font-family: 'Mono', Mono;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -21,9 +20,9 @@
     }
     .container {
         text-align: center;
-        background: #2c2c2c;
-        padding: 40px;
-        border-radius: 20px;
+        background: #000000;
+        padding: 20px;
+        border-radius: 10px;
         box-shadow: 0 0 20px #000;
         position: relative; /* for particles and + */
         overflow: visible;
@@ -90,7 +89,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>Minecraft Tally Counter</h1>
+    <h1>Hours studied</h1>
     <div id="count">0</div>
     <button onclick="decrement()">-</button>
     <button onclick="increment()">+</button>
