@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hours Studied</title>
-<!-- Minecraft-style font -->
+<title>Hours Studied + Streak</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
 <style>
@@ -18,42 +18,44 @@ body {
     height: 100vh;
     margin: 0;
 }
+
 .container {
     text-align: center;
-    background: #191919; /* Notion-dark background */
+    background: #191919;
     padding: 30px;
     border-radius: 15px;
     box-shadow: 0 0 15px #000;
     position: relative;
     overflow: visible;
 }
+
 #count {
-    font-size: 60px; /* smaller font */
+    font-size: 50px;
     margin: 15px 0;
     font-weight: bold;
 }
+
 button {
     padding: 12px 30px;
-    font-size: 18px; /* smaller */
+    font-size: 16px;
     border: none;
     border-radius: 10px;
     margin: 8px;
     cursor: pointer;
-    background: #0d0d0d; /* darker button to blend */
+    background: #0d0d0d;
     color: #f0f0f0;
     transition: 0.2s;
 }
+
 button:hover {
     background: #2c2c2c;
 }
-#reset {
-    background:#0d0d0d;
-}
+
 #reset:hover {
     background:#2c2c2c;
 }
 
-/* Particle styles */
+/* Particles */
 .particle {
     position: absolute;
     width: 6px;
@@ -63,47 +65,67 @@ button:hover {
     pointer-events: none;
     animation: floatUp 0.8s forwards;
 }
+
 .damage-particle {
     background: red;
 }
+
 @keyframes floatUp {
     0% { transform: translateY(0) scale(1); opacity: 1; }
     100% { transform: translateY(-50px) scale(0.5); opacity: 0; }
 }
 
-/* Big floating + / - */
+/* Floating + or - */
 .floating-symbol {
     position: absolute;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 48px; /* smaller */
-    font-weight: bold;
+    font-family: 'Press Start 2P';
+    font-size: 40px;
     pointer-events: none;
     animation: floatUpPlus 1s forwards;
 }
+
 @keyframes floatUpPlus {
     0% { transform: translateY(0) scale(1); opacity: 1; }
     100% { transform: translateY(-70px) scale(1.1); opacity: 0; }
 }
+
+/* Streak text */
+#streakBox {
+    font-size: 20px;
+    margin-top: 20px;
+}
 </style>
 </head>
 <body>
+
 <div class="container">
-    <h1>Hours Studied</h1>
+    <h1>Study Hours</h1>
+
     <div id="count">0</div>
+
     <button onclick="decrement()">-</button>
     <button onclick="increment()">+</button>
-    <br>
-    <button id="reset" onclick="resetCount()">Reset</button>
 
-    <!-- Minecraft Sounds -->
+    <br>
+    <button id="reset" onclick="resetCount()">Reset Hours</button>
+
+    <div id="streakBox">
+        🔥 Daily Streak: <span id="streak">0</span>
+    </div>
+
+    <!-- Sounds -->
     <audio id="levelUp" src="https://orangefreesounds.com/wp-content/uploads/2024/09/Level-up-sound.mp3"></audio>
-    <audio id="damage" src="https://www.myinstants.com/media/sounds/minecraft-damage.mp3"></audio>
+    <audio id="damage" src="https://cdn.pixabay.com/audio/2022/03/15/audio_3e85204747.mp3"></audio>
 </div>
 
 <script>
-let count = localStorage.getItem("tally") 
-            ? parseInt(localStorage.getItem("tally")) 
-            : 0;
+/* ---------------------------------------------------------
+   HOURS + COUNTER
+---------------------------------------------------------- */
+let count = localStorage.getItem("hours")
+    ? parseFloat(localStorage.getItem("hours"))
+    : 0;
+
 document.getElementById("count").textContent = count;
 
 const levelUp = document.getElementById("levelUp");
@@ -114,63 +136,120 @@ function playSound(sound) {
     s.play();
 }
 
-function update() {
+function updateHours() {
     document.getElementById("count").textContent = count;
-    localStorage.setItem("tally", count);
+    localStorage.setItem("hours", count);
 }
 
-// Particle creation
+/* Particles */
 function createParticle(x, y, type="level") {
-    const particle = document.createElement("div");
-    particle.className = "particle";
-    if(type==="damage") particle.classList.add("damage-particle");
-    particle.style.left = x + "px";
-    particle.style.top = y + "px";
-    document.querySelector(".container").appendChild(particle);
-    setTimeout(() => particle.remove(), 800);
+    const p = document.createElement("div");
+    p.className = "particle";
+    if (type === "damage") p.classList.add("damage-particle");
+    p.style.left = x + "px";
+    p.style.top = y + "px";
+
+    document.querySelector(".container").appendChild(p);
+    setTimeout(() => p.remove(), 800);
 }
 
-// Big floating symbol creation
 function createSymbol(x, y, symbol, color) {
-    const elem = document.createElement("div");
-    elem.className = "floating-symbol";
-    elem.textContent = symbol;
-    elem.style.color = color;
-    elem.style.left = x + "px";
-    elem.style.top = y + "px";
-    document.querySelector(".container").appendChild(elem);
-    setTimeout(() => elem.remove(), 1000);
+    const s = document.createElement("div");
+    s.className = "floating-symbol";
+    s.textContent = symbol;
+    s.style.color = color;
+    s.style.left = x + "px";
+    s.style.top = y + "px";
+
+    document.querySelector(".container").appendChild(s);
+    setTimeout(() => s.remove(), 1000);
 }
 
 function increment() {
-    count++;
-    update();
+    count += 0.1; // 0.1 hr = 6 minutes each click
+    count = parseFloat(count.toFixed(1));
+    updateHours();
     playSound(levelUp);
 
-    const rect = document.getElementById("count").getBoundingClientRect();
-    const containerRect = document.querySelector(".container").getBoundingClientRect();
-    
-    createParticle(rect.width/2, rect.top - containerRect.top, "level");
-    createSymbol(rect.width/2 - 24, rect.top - containerRect.top - 20, "+", "gold");
+    createVisual("+", "gold", "level");
+    checkStreak();
 }
 
 function decrement() {
-    count--;
-    update();
+    count -= 0.1;
+    if (count < 0) count = 0;
+    count = parseFloat(count.toFixed(1));
+    updateHours();
     playSound(damage);
 
+    createVisual("−", "red", "damage");
+}
+
+function createVisual(symbol, color, type) {
     const rect = document.getElementById("count").getBoundingClientRect();
-    const containerRect = document.querySelector(".container").getBoundingClientRect();
-    
-    createParticle(rect.width/2, rect.top - containerRect.top, "damage");
-    createSymbol(rect.width/2 - 24, rect.top - containerRect.top - 20, "−", "red");
+    const box = document.querySelector(".container").getBoundingClientRect();
+
+    const x = rect.width/2;
+    const y = rect.top - box.top;
+
+    createParticle(x, y, type);
+    createSymbol(x - 20, y - 20, symbol, color);
 }
 
 function resetCount() {
     count = 0;
-    update();
+    updateHours();
     playSound(levelUp);
 }
+
+/* ---------------------------------------------------------
+   STREAK SYSTEM — MUST STUDY 6 HOURS DAILY
+---------------------------------------------------------- */
+
+let streak = localStorage.getItem("streak")
+    ? parseInt(localStorage.getItem("streak"))
+    : 0;
+
+document.getElementById("streak").textContent = streak;
+
+let lastDay = localStorage.getItem("lastDay") || "";
+
+/* Check streak logic */
+function checkStreak() {
+    const today = new Date().toDateString();
+
+    // Only check after day is completed
+    if (today !== lastDay && count >= 6) {
+        streak++;
+        localStorage.setItem("streak", streak);
+        lastDay = today;
+        localStorage.setItem("lastDay", lastDay);
+        document.getElementById("streak").textContent = streak;
+        playSound(levelUp);
+    }
+}
+
+/* AUTO MIDNIGHT CHECK — break streak if < 6 hours */
+setInterval(() => {
+    const today = new Date().toDateString();
+
+    if (lastDay !== today) {
+        // If previous day was missed
+        if (count < 6 && lastDay !== "") {
+            streak = 0;
+            localStorage.setItem("streak", 0);
+            document.getElementById("streak").textContent = 0;
+        }
+
+        // New day → reset hours
+        count = 0;
+        updateHours();
+        lastDay = today;
+        localStorage.setItem("lastDay", today);
+    }
+}, 5000); // checks every 5 seconds
+
 </script>
+
 </body>
 </html>
