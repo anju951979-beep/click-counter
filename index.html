@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Study XP Tracker</title>
+<title>Study Streak Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
 body {
@@ -22,132 +22,123 @@ body {
     padding: 30px;
     border-radius: 15px;
     box-shadow: 0 0 15px #000;
-    position: relative;
-    overflow: visible;
 }
+
 #count {
-    font-size: 50px;
+    font-size: 40px;
     margin: 10px 0;
 }
+
 button {
-    padding: 12px 30px;
+    padding: 10px 25px;
     font-size: 18px;
     border: none;
     border-radius: 10px;
-    margin: 5px;
+    margin: 7px;
     cursor: pointer;
     background: #0d0d0d;
     color: #f0f0f0;
     transition: 0.2s;
 }
 button:hover { background: #2c2c2c; }
-#reset { background: #0d0d0d; }
-#reset:hover { background: #2c2c2c; }
 
-/* XP Bar */
-.xp-container {
-    width: 300px;
-    height: 30px;
-    background: #0d0d0d;
-    border: 2px solid #333;
-    border-radius: 5px;
-    margin: 20px auto;
-    position: relative;
-}
-.xp-fill {
-    height: 100%;
-    background: gold;
-    width: 0%;
-    transition: width 0.3s;
-}
-.level-display {
-    margin-top: 10px;
-    font-size: 24px;
+#reset { background: #0d0d0d; }
+
+.streak-box {
+    margin-top: 25px;
+    font-size: 20px;
 }
 </style>
 </head>
+
 <body>
 <div class="container">
     <h1>Hours Studied</h1>
     <div id="count">0</div>
+
     <button onclick="decrement()">-</button>
     <button onclick="increment()">+</button>
     <br>
     <button id="reset" onclick="resetCount()">Reset</button>
 
-    <div class="xp-container">
-        <div class="xp-fill" id="xp-fill"></div>
+    <div class="streak-box">
+        Streak: <span id="streak">0</span><br>
+        Freeze Left: <span id="freeze">1</span>
     </div>
-    <div class="level-display">Level: <span id="level">0</span></div>
 </div>
 
 <script>
-let hoursStudied = localStorage.getItem("hoursStudied") 
-                    ? parseInt(localStorage.getItem("hoursStudied")) : 0;
-let level = localStorage.getItem("level") 
-            ? parseInt(localStorage.getItem("level")) : 0;
+/* ----- Load Stored Values ----- */
+let hours = localStorage.getItem("hours")
+            ? parseInt(localStorage.getItem("hours")) : 0;
 
-const countEl = document.getElementById("count");
-const xpFill = document.getElementById("xp-fill");
-const levelEl = document.getElementById("level");
+let streak = localStorage.getItem("streak")
+             ? parseInt(localStorage.getItem("streak")) : 0;
 
-const XP_MAX = 6; // 6 hours per level
+let freeze = localStorage.getItem("freeze")
+             ? parseInt(localStorage.getItem("freeze")) : 1;
 
+let lastDay = localStorage.getItem("lastDay")
+             ? localStorage.getItem("lastDay") : "";
+
+/* ----- Display Update ----- */
 function updateDisplay() {
-    countEl.textContent = hoursStudied;
-    levelEl.textContent = level;
-    let xpPercent = (hoursStudied % XP_MAX) / XP_MAX * 100;
-    xpFill.style.width = xpPercent + "%";
+    document.getElementById("count").textContent = hours;
+    document.getElementById("streak").textContent = streak;
+    document.getElementById("freeze").textContent = freeze;
 }
 
-// Increment hours
+/* ----- Study Actions ----- */
 function increment() {
-    hoursStudied++;
-    if(hoursStudied >= XP_MAX) {
-        level++;
-    }
-    saveData();
+    hours++;
+    localStorage.setItem("hours", hours);
+    dailyCheck(true);
     updateDisplay();
 }
 
-// Decrement hours
 function decrement() {
-    if(hoursStudied > 0) hoursStudied--;
-    if(hoursStudied < 0) hoursStudied = 0;
-    saveData();
+    if (hours > 0) hours--;
+    localStorage.setItem("hours", hours);
     updateDisplay();
 }
 
-// Reset
 function resetCount() {
-    hoursStudied = 0;
-    saveData();
+    hours = 0;
+    localStorage.setItem("hours", hours);
     updateDisplay();
 }
 
-// Save to localStorage
-function saveData() {
-    localStorage.setItem("hoursStudied", hoursStudied);
-    localStorage.setItem("level", level);
-}
-
-// Auto-decrease level if not studied today
-function dailyCheck() {
-    const lastDate = localStorage.getItem("lastDate");
+/* ----- Streak Logic ----- */
+function dailyCheck(didStudy) {
     const today = new Date().toDateString();
-    if(lastDate && lastDate !== today) {
-        // new day
-        if(hoursStudied < XP_MAX) { // didn't complete level
-            level = Math.max(0, level - 1);
-            hoursStudied = 0; // reset XP
+
+    if (lastDay === today) return; // same day, nothing to do
+
+    // New day
+    if (didStudy) {
+        streak++;
+        freeze = 1; // restore freeze when streak continues
+    } 
+    else {
+        // did not study today
+        if (freeze > 0) {
+            freeze--; // freeze used
+        } else {
+            streak = 0; // lose streak
         }
+        hours = 0; // new day resets hours
     }
-    localStorage.setItem("lastDate", today);
+
+    lastDay = today;
+
+    localStorage.setItem("streak", streak);
+    localStorage.setItem("freeze", freeze);
+    localStorage.setItem("lastDay", lastDay);
+    localStorage.setItem("hours", hours);
 }
 
-dailyCheck();
+dailyCheck(false); 
 updateDisplay();
 </script>
 </body>
 </html>
-
