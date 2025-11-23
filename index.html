@@ -1,108 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minecraft Tally Counter</title>
-    <style>
-        body {
-            background: #1e1e1e;
-            color: #f0f0f0;
-            font-family: 'Minecraft', Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            text-align: center;
-            background: #2c2c2c;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 0 20px #000;
-        }
-        #count {
-            font-size: 80px;
-            margin: 20px 0;
-            font-weight: bold;
-        }
-        button {
-            padding: 15px 35px;
-            font-size: 22px;
-            border: none;
-            border-radius: 12px;
-            margin: 10px;
-            cursor: pointer;
-            background: #4c4c4c;
-            color: #f0f0f0;
-            transition: 0.2s;
-        }
-        button:hover {
-            background: #6c6c6c;
-        }
-        #reset {
-            background: #ff5555;
-        }
-        #reset:hover {
-            background: #ff2222;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>hours studied</h1>
-        <div id="count">0</div>
-        <button onclick="decrement()">-</button>
-        <button onclick="increment()">+</button>
-        <br>
-        <button id="reset" onclick="resetCount()">Reset</button>
-    </div>
+<style>
+    /* Particle styles */
+    .particle {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: gold; /* + color for level-up */
+        border-radius: 50%;
+        pointer-events: none;
+        animation: floatUp 0.8s forwards;
+    }
 
-    <!-- Minecraft Sounds -->
-    <audio id="levelUp" src="https://orangefreesounds.com/wp-content/uploads/2024/09/Level-up-sound.mp3">
-    <audio id="damage" src="https://www.myinstants.com/media/sounds/minecraft-damage.mp3"></audio>
+    .damage-particle {
+        background: red; /* - color for damage */
+    }
 
-    <script>
-        let count = localStorage.getItem("tally") 
-                    ? parseInt(localStorage.getItem("tally")) 
-                    : 0;
-        document.getElementById("count").textContent = count;
+    @keyframes floatUp {
+        0% { transform: translateY(0) scale(1); opacity: 1; }
+        100% { transform: translateY(-60px) scale(0.5); opacity: 0; }
+    }
+</style>
 
-        const levelUp = document.getElementById("levelUp");
-        const damage = document.getElementById("damage");
+<script>
+function createParticle(x, y, type="level") {
+    const particle = document.createElement("div");
+    particle.className = "particle";
+    if (type === "damage") particle.classList.add("damage-particle");
+    particle.style.left = x + "px";
+    particle.style.top = y + "px";
+    document.body.appendChild(particle);
 
-        function playSound(sound) {
-            const s = sound.cloneNode();
-            s.play();
-        }
+    // remove after animation
+    setTimeout(() => particle.remove(), 800);
+}
 
-        function update() {
-            document.getElementById("count").textContent = count;
-            localStorage.setItem("tally", count);
-        }
+function increment() {
+    count++;
+    update();
+    playSound(levelUp);
+    const rect = document.getElementById("count").getBoundingClientRect();
+    createParticle(rect.left + rect.width/2, rect.top, "level");
+}
 
-        function increment() {
-            count++;
-            update();
-            playSound(levelUp);
-        }
+function decrement() {
+    count--;
+    update();
+    playSound(damage);
+    const rect = document.getElementById("count").getBoundingClientRect();
+    createParticle(rect.left + rect.width/2, rect.top, "damage");
+}
+</script>
 
-        function decrement() {
-            count--;
-            update();
-            playSound(damage);
-        }
-
-        function resetCount() {
-            count = 0;
-            update();
-            playSound(levelUp);
-        }
-    </script>
-</body>
-</html>
 
 
 
