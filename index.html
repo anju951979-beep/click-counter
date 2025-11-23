@@ -44,9 +44,6 @@ button {
 }
 button:hover { background: #2c2c2c; }
 
-#reset { background:#0d0d0d; }
-#reset:hover { background:#2c2c2c; }
-
 .particle {
     position: absolute;
     width: 6px;
@@ -90,6 +87,7 @@ button:hover { background: #2c2c2c; }
 
 <body>
 <div class="container">
+
     <h1>Hours Studied</h1>
 
     <div id="count">0</div>
@@ -103,44 +101,44 @@ button:hover { background: #2c2c2c; }
     </div>
 
     <!-- Sounds -->
-    <audio id="levelUp" src="https://cdn.pixabay.com/audio/2022/10/11/audio_3f8371db35.mp3"></audio>
+    <audio id="levelUp" src="https://raw.githubusercontent.com/aztrosound/mc-sfx/main/level-up.mp3"></audio>
     <audio id="damage" src="https://cdn.pixabay.com/audio/2022/03/15/audio_3e85204747.mp3"></audio>
+    <audio id="streakSound" src="https://raw.githubusercontent.com/aztrosound/mc-sfx/main/advancement.mp3"></audio>
+
 </div>
 
 <script>
-// -----------------------------
 // LOAD VALUES
-// -----------------------------
 let count = Number(localStorage.getItem("tally")) || 0;
-document.getElementById("count").textContent = count;
-
 let streak = Number(localStorage.getItem("daily_streak")) || 0;
+let lastDay = localStorage.getItem("last_day") || "";
+let streakGivenToday = localStorage.getItem("streak_given") === "1";
+
+document.getElementById("count").textContent = count;
 document.getElementById("streak").textContent = streak;
 
-let lastDay = localStorage.getItem("last_day") || new Date().toDateString();
+// SOUNDS
+const levelUp = document.getElementById("levelUp");
+const damage = document.getElementById("damage");
+const streakSound = document.getElementById("streakSound");
 
-// -----------------------------
-// SOUND
-// -----------------------------
-function playSound(el) {
-    const a = el.cloneNode();
+function playSound(s) {
+    const a = s.cloneNode();
+    a.volume = 1.0;
     a.play();
 }
 
-// -----------------------------
-// UPDATE DISPLAY
-// -----------------------------
+// UPDATE UI
 function update() {
     document.getElementById("count").textContent = count;
     localStorage.setItem("tally", count);
 }
 
-// -----------------------------
 // PARTICLES & SYMBOLS
-// -----------------------------
 function createParticle(x, y, type="level") {
     const p = document.createElement("div");
-    p.className = type === "damage" ? "particle damage-particle" : "particle";
+    p.className = "particle";
+    if (type === "damage") p.classList.add("damage-particle");
     p.style.left = x + "px";
     p.style.top = y + "px";
     document.querySelector(".container").appendChild(p);
@@ -158,68 +156,74 @@ function createSymbol(x, y, symbol, color) {
     setTimeout(() => elem.remove(), 1000);
 }
 
-// -----------------------------
-// FIXED DAILY STREAK LOGIC
-// -----------------------------
-function dailyCheck() {
+// DAILY STREAK SYSTEM (INSTANT 6HR TRIGGER)
+function checkStreak() {
     const today = new Date().toDateString();
 
-    if (lastDay !== today) {
-        // New day started → check YESTERDAY
-        let yesterdayHours = Number(localStorage.getItem("tally")) || 0;
-
-        if (yesterdayHours >= 6) streak++;
-        else streak = 0;
-
+    // New day?
+    if (today !== lastDay) {
+        if (count < 6) {
+            streak = 0;
+        }
         document.getElementById("streak").textContent = streak;
         localStorage.setItem("daily_streak", streak);
-
-        // Reset for new day
-        count = 0;
-        update();
 
         lastDay = today;
         localStorage.setItem("last_day", today);
+
+        count = 0;
+        localStorage.setItem("tally", 0);
+        update();
+
+        streakGivenToday = false;
+        localStorage.setItem("streak_given", "0");
+        return;
+    }
+
+    // Instant streak increase when hitting 6 hours
+    if (!streakGivenToday && count >= 6) {
+        streak++;
+        streakGivenToday = true;
+
+        // Save
+        localStorage.setItem("daily_streak", streak);
+        localStorage.setItem("streak_given", "1");
+
+        document.getElementById("streak").textContent = streak;
+
+        // Play streak sound
+        playSound(streakSound);
     }
 }
 
-// Run daily check every 5 seconds
-setInterval(dailyCheck, 5000);
-
-// -----------------------------
 // BUTTONS
-// -----------------------------
 function increment() {
-    dailyCheck();
+    checkStreak();
 
     count++;
     update();
+
+    // XP sound (Minecraft)
     playSound(levelUp);
 
+    // Animation
     const rect = document.getElementById("count").getBoundingClientRect();
     const box = document.querySelector(".container").getBoundingClientRect();
-
-    createParticle(rect.width/2, rect.top - box.top);
+    createParticle(rect.width/2, rect.top - box.top, "level");
     createSymbol(rect.width/2 - 20, rect.top - box.top - 20, "+", "gold");
-
-    // Live streak update when hitting 6 hours
-    if (count === 6) {
-        streak++;
-        document.getElementById("streak").textContent = streak;
-        localStorage.setItem("daily_streak", streak);
-    }
 }
 
 function decrement() {
-    dailyCheck();
+    checkStreak();
 
-    if (count > 0) count--;
+    count--;
+    if (count < 0) count = 0;
+
     update();
     playSound(damage);
 
     const rect = document.getElementById("count").getBoundingClientRect();
     const box = document.querySelector(".container").getBoundingClientRect();
-
     createParticle(rect.width/2, rect.top - box.top, "damage");
     createSymbol(rect.width/2 - 20, rect.top - box.top - 20, "−", "red");
 }
@@ -229,10 +233,10 @@ function resetCount() {
     update();
     playSound(levelUp);
 }
+
+// Auto check every 10 sec
+setInterval(checkStreak, 10000);
 </script>
 
 </body>
 </html>
-
-
-
