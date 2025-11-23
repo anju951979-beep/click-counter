@@ -1,420 +1,701 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Minecraft Study Tracker</title>
+
+<title>Hours Studied</title>
+
+<!-- Minecraft-style font -->
 
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
 <style>
+
 body {
-    background: linear-gradient(135deg, #3a7e3a, #2c5f2c);
+
+    background: #1e1e1e;
+
     color: #f0f0f0;
+
     font-family: 'Press Start 2P', monospace;
+
     display: flex;
+
     justify-content: center;
+
     align-items: center;
+
     height: 100vh;
+
     margin: 0;
-    overflow: hidden;
+
 }
 
 .container {
-    position: relative;
-    text-align: center;
-    background: #3c3c3c;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 
-        0 0 0 8px #2a2a2a,
-        0 0 0 12px #8b8b8b,
-        0 0 0 16px #2a2a2a,
-        0 10px 20px rgba(0, 0, 0, 0.5);
-    width: 350px;
-    border: 4px solid #5a5a5a;
-}
 
-h1 {
-    color: #ffd700;
-    text-shadow: 3px 3px 0 #000;
-    margin-bottom: 20px;
-    font-size: 22px;
+    text-align: center;
+
+    background: #191919;
+
+    padding: 30px;
+
+    border-radius: 15px;
+
+    box-shadow: 0 0 15px #000;
+
+    position: relative;
+
+    overflow: visible;
+
+    width: 500px;
+
 }
 
 #count {
-    font-size: 70px;
-    margin: 20px 0;
-    font-weight: bold;
-    color: #ffd700;
-    text-shadow: 4px 4px 0 #000;
-    background: #2a2a2a;
-    padding: 15px;
-    border-radius: 10px;
-    border: 4px solid #5a5a5a;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-}
 
-.buttons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin: 20px 0;
+    font-size: 60px;
+
+    margin: 15px 0;
+
+    font-weight: bold;
+
 }
 
 button {
-    padding: 15px 25px;
-    font-size: 24px;
+
+    padding: 12px 30px;
+
+    font-size: 18px;
+
     border: none;
+
     border-radius: 10px;
+
+    margin: 8px;
+
     cursor: pointer;
-    background: #5a5a5a;
-    color: #fff;
+
+    background: #0d0d0d;
+
+    color: #f0f0f0;
+
     transition: 0.2s;
-    font-family: 'Press Start 2P', monospace;
-    box-shadow: 0 5px 0 #3a3a3a;
-    position: relative;
-    overflow: hidden;
+
 }
 
-button:hover { 
-    background: #6a6a6a;
-    transform: translateY(2px);
-    box-shadow: 0 3px 0 #3a3a3a;
-}
+button:hover {
 
-button:active {
-    transform: translateY(5px);
-    box-shadow: 0 0 0 #3a3a3a;
-}
+    background: #2c2c2c;
 
-#incrementBtn {
-    background: #4caf50;
-    box-shadow: 0 5px 0 #388e3c;
-}
-
-#incrementBtn:hover {
-    background: #5cbf60;
-    box-shadow: 0 3px 0 #388e3c;
-}
-
-#decrementBtn {
-    background: #f44336;
-    box-shadow: 0 5px 0 #d32f2f;
-}
-
-#decrementBtn:hover {
-    background: #ff5544;
-    box-shadow: 0 3px 0 #d32f2f;
 }
 
 #reset {
-    background: #ff9800;
-    box-shadow: 0 5px 0 #f57c00;
-    font-size: 16px;
-    padding: 12px 20px;
+
+    background:#0d0d0d;
+
 }
 
 #reset:hover {
-    background: #ffa726;
-    box-shadow: 0 3px 0 #f57c00;
+
+    background:#2c2c2c;
+
 }
 
-#streakBox {
-    margin-top: 25px;
-    padding: 15px;
-    background: #2a2a2a;
-    border-radius: 10px;
-    font-size: 18px;
-    border: 4px solid #5a5a5a;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-}
+/* Particle styles */
 
-#streak {
-    color: #ff9800;
-}
+.particle {
 
-/* Plus effect styles */
-.plus-effect {
     position: absolute;
-    font-size: 30px;
-    color: gold;
-    font-weight: bold;
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-    z-index: 10;
+
+    width: 6px;
+
+    height: 6px;
+
+    background: gold;
+
+    border-radius: 50%;
+
     pointer-events: none;
-    animation: floatUp 1.5s ease-out forwards;
+
+    animation: floatUp 0.8s forwards;
+
+}
+
+.damage-particle {
+
+    background: red;
+
 }
 
 @keyframes floatUp {
-    0% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(-80px) scale(1.5);
-    }
+
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+
+    100% { transform: translateY(-50px) scale(0.5); opacity: 0; }
+
 }
 
-/* Button pulse effect */
-.pulse {
-    animation: pulse 0.5s ease-out;
-}
+/* Big floating + / - */
 
-@keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7);
-    }
-    70% {
-        box-shadow: 0 0 0 15px rgba(255, 215, 0, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(255, 215, 0, 0);
-    }
-}
+.floating-symbol {
 
-/* Count scale effect */
-.count-pop {
-    animation: countPop 0.3s ease-out;
-}
-
-@keyframes countPop {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.2);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
-
-/* Minecraft grass block decoration */
-.grass-block {
     position: absolute;
-    width: 40px;
-    height: 40px;
-    background: #5a5a5a;
-    border: 3px solid #3a3a3a;
-    box-shadow: 0 5px 0 #3a3a3a;
-    z-index: -1;
+
+    font-family: 'Press Start 2P', monospace;
+
+    font-size: 48px;
+
+    font-weight: bold;
+
+    pointer-events: none;
+
+    animation: floatUpPlus 1s forwards;
+
 }
 
-.grass-block::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 10px;
-    background: #4caf50;
-    border-bottom: 2px solid #388e3c;
+@keyframes floatUpPlus {
+
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+
+    100% { transform: translateY(-70px) scale(1.1); opacity: 0; }
+
 }
 
-.block-1 {
-    top: -20px;
-    left: 30px;
-    transform: rotate(15deg);
-}
+/* Streak system styles */
 
-.block-2 {
-    bottom: -20px;
-    right: 40px;
-    transform: rotate(-15deg);
-}
+.streak-container {
 
-.block-3 {
-    top: 50%;
-    left: -20px;
-    transform: rotate(10deg);
-}
+    margin-top: 20px;
 
-.block-4 {
-    top: 50%;
-    right: -20px;
-    transform: rotate(-10deg);
-}
+    padding: 15px;
 
-/* XP bar style progress */
-.xp-bar {
-    width: 100%;
-    height: 20px;
-    background: #2a2a2a;
+    background: #0d0d0d;
+
     border-radius: 10px;
-    margin: 15px 0;
+
+    border: 2px solid #333;
+
+}
+
+.streak-display {
+
+    font-size: 16px;
+
+    margin-bottom: 10px;
+
+}
+
+.streak-count {
+
+    color: gold;
+
+    font-size: 24px;
+
+    margin: 0 5px;
+
+}
+
+.streak-progress {
+
+    height: 20px;
+
+    background: #333;
+
+    border-radius: 10px;
+
+    margin: 10px 0;
+
     overflow: hidden;
-    border: 3px solid #5a5a5a;
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+
+    position: relative;
+
 }
 
-.xp-fill {
+.progress-bar {
+
     height: 100%;
-    background: linear-gradient(90deg, #4caf50, #8bc34a, #4caf50);
+
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+
     width: 0%;
+
     transition: width 0.5s ease;
-    border-radius: 7px;
+
+    border-radius: 10px;
+
 }
 
-.xp-text {
+.streak-goal {
+
     font-size: 12px;
+
+    color: #aaa;
+
     margin-top: 5px;
-    color: #8bc34a;
+
 }
+
+.streak-message {
+
+    margin-top: 10px;
+
+    font-size: 12px;
+
+    min-height: 36px;
+
+    color: #4CAF50;
+
+}
+
+.streak-fire {
+
+    color: #ff9800;
+
+    display: inline-block;
+
+    animation: firePulse 1.5s infinite;
+
+}
+
+@keyframes firePulse {
+
+    0% { transform: scale(1); }
+
+    50% { transform: scale(1.2); }
+
+    100% { transform: scale(1); }
+
+}
+
+.streak-badge {
+
+    background: gold;
+
+    color: #000;
+
+    padding: 5px 10px;
+
+    border-radius: 5px;
+
+    font-size: 12px;
+
+    display: inline-block;
+
+    margin-top: 10px;
+
+    animation: badgeGlow 2s infinite;
+
+}
+
+@keyframes badgeGlow {
+
+    0% { box-shadow: 0 0 5px gold; }
+
+    50% { box-shadow: 0 0 15px gold; }
+
+    100% { box-shadow: 0 0 5px gold; }
+
+}
+
+.last-updated {
+
+    font-size: 10px;
+
+    color: #666;
+
+    margin-top: 15px;
+
+}
+
 </style>
+
 </head>
 
 <body>
+
 <div class="container">
-    <div class="grass-block block-1"></div>
-    <div class="grass-block block-2"></div>
-    <div class="grass-block block-3"></div>
-    <div class="grass-block block-4"></div>
-    
-    <h1>STUDY HOURS</h1>
+
+    <h1>Hours Studied</h1>
 
     <div id="count">0</div>
-    
-    <div class="buttons">
-        <button id="decrementBtn" onclick="decrement()">-</button>
-        <button id="incrementBtn" onclick="increment()">+</button>
-    </div>
-    
-    <button id="reset" onclick="resetCount()">Reset</button>
 
-    <!-- XP Bar -->
-    <div class="xp-bar">
-        <div class="xp-fill" id="xpFill"></div>
-    </div>
-    <div class="xp-text" id="xpText">XP: 0/10</div>
+    <button onclick="decrement()">-</button>
 
-    <div id="streakBox">
-        Streak: <span id="streak">0</span> 🔥
+    <button onclick="increment()">+</button>
+
+    <br>
+
+    <button id="reset" onclick="resetCount()">Reset Today</button>
+
+    
+
+    <!-- Streak System -->
+
+    <div class="streak-container">
+
+        <div class="streak-display">
+
+            Current Streak: <span class="streak-count" id="streakCount">0</span> days
+
+        </div>
+
+        <div class="streak-progress">
+
+            <div class="progress-bar" id="progressBar"></div>
+
+        </div>
+
+        <div class="streak-goal" id="streakGoal">Goal: 6 hours today</div>
+
+        <div class="streak-message" id="streakMessage">Keep going! You're doing great!</div>
+
     </div>
+
+    
+
+    <div class="last-updated" id="lastUpdated"></div>
+
+    <!-- Minecraft Sounds -->
+
+    <audio id="levelUp" src="https://orangefreesounds.com/wp-content/uploads/2024/09/Level-up-sound.mp3"></audio>
+
+    <audio id="damage" src="https://www.myinstants.com/media/sounds/minecraft-damage.mp3"></audio>
+
+    <audio id="streakSound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
+
 </div>
 
 <script>
-// LOAD VALUES
-let count = Number(localStorage.getItem("tally")) || 0;
-let streak = Number(localStorage.getItem("daily_streak")) || 0;
-let lastDay = localStorage.getItem("last_day") || "";
 
-document.getElementById("count").textContent = count;
-document.getElementById("streak").textContent = streak;
+// Main study counter (total hours studied)
 
-// Update XP bar
-function updateXP() {
-    const xpFill = document.getElementById("xpFill");
-    const xpText = document.getElementById("xpText");
-    const xpPercent = (count % 10) * 10;
+let totalCount = localStorage.getItem("totalCount") 
+
+                ? parseInt(localStorage.getItem("totalCount")) 
+
+                : 0;
+
+// Streak system variables
+
+let streak = localStorage.getItem("streak") 
+
+            ? parseInt(localStorage.getItem("streak")) 
+
+            : 0;
+
+let currentDate = localStorage.getItem("currentDate") 
+
+                 ? localStorage.getItem("currentDate") 
+
+                 : getTodayString();
+
+let todayHours = localStorage.getItem("todayHours") 
+
+                ? parseInt(localStorage.getItem("todayHours")) 
+
+                : 0;
+
+// Initialize display
+
+document.getElementById("count").textContent = totalCount;
+
+updateLastUpdatedDisplay();
+
+checkDayChange(); // Check if day changed since last visit
+
+updateStreakDisplay();
+
+const levelUp = document.getElementById("levelUp");
+
+const damage = document.getElementById("damage");
+
+const streakSound = document.getElementById("streakSound");
+
+// Set up daily check interval (every minute)
+
+setInterval(checkDayChange, 60000);
+
+function getTodayString() {
+
+    return new Date().toDateString();
+
+}
+
+function updateLastUpdatedDisplay() {
+
+    const now = new Date();
+
+    document.getElementById("lastUpdated").textContent = 
+
+        `Last updated: ${now.toLocaleTimeString()}`;
+
+}
+
+function checkDayChange() {
+
+    const today = getTodayString();
+
     
-    xpFill.style.width = `${xpPercent}%`;
-    xpText.textContent = `XP: ${count % 10}/10`;
-}
 
-updateXP();
+    // If it's a new day
 
-// SOUND - Using Minecraft level up sound
-const levelUp = new Audio("https://www.soundboard.com/mediafiles/mz/Mzg1ODMxNTIzMzg1ODM3_JzthsfvUY24.MP3");
+    if (currentDate !== today) {
 
-function playSound(audio) {
-    audio.currentTime = 0;
-    audio.play().catch(e => console.log("Audio play failed:", e));
-}
+        const previousDate = currentDate;
 
-// UPDATE DISPLAY
-function update() {
-    document.getElementById("count").textContent = count;
-    localStorage.setItem("tally", count);
-    updateXP();
-}
+        const previousHours = todayHours;
 
-// DAILY STREAK LOGIC
-function checkStreak() {
-    const today = new Date().toDateString();
+        
 
-    if (lastDay !== today) {
-        if (count >= 6) streak++;
-        else streak = 0;
+        // Update streak based on yesterday's performance
 
-        localStorage.setItem("daily_streak", streak);
-        document.getElementById("streak").textContent = streak;
+        if (previousHours >= 6) {
 
-        lastDay = today;
-        localStorage.setItem("last_day", today);
+            streak++;
 
-        count = 0;
-        update();
+            showStreakMessage("🔥 Daily goal met! Streak increased! 🔥", true);
+
+        } else if (streak > 0) {
+
+            streak = 0;
+
+            showStreakMessage("Streak broken yesterday. Start a new one today!", false);
+
+        }
+
+        
+
+        // Reset for new day
+
+        currentDate = today;
+
+        todayHours = 0;
+
+        
+
+        // Save to localStorage
+
+        localStorage.setItem("currentDate", currentDate);
+
+        localStorage.setItem("todayHours", todayHours);
+
+        localStorage.setItem("streak", streak);
+
+        
+
+        console.log(`New day! Previous: ${previousDate} (${previousHours}h), Streak: ${streak}`);
+
     }
+
+    
+
+    updateStreakDisplay();
+
+    updateLastUpdatedDisplay();
+
 }
 
-// Check streak every 10s
-setInterval(checkStreak, 10000);
+function playSound(sound) {
 
-// PLUS EFFECT FUNCTION
-function createPlusEffect() {
-    const container = document.querySelector('.container');
-    const effect = document.createElement('div');
-    effect.className = 'plus-effect';
-    effect.textContent = '+1';
-    
-    // Position it near the count display
-    const countElement = document.getElementById('count');
-    const countRect = countElement.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-    
-    effect.style.left = (countRect.left + countRect.width/2 - containerRect.left - 15) + 'px';
-    effect.style.top = (countRect.top - containerRect.top - 10) + 'px';
-    
-    container.appendChild(effect);
-    
-    // Remove the element after animation completes
-    setTimeout(() => {
-        effect.remove();
-    }, 1500);
+    const s = sound.cloneNode();
+
+    s.play();
+
 }
 
-// BUTTONS
+function update() {
+
+    document.getElementById("count").textContent = totalCount;
+
+    localStorage.setItem("totalCount", totalCount);
+
+    updateStreakDisplay();
+
+    updateLastUpdatedDisplay();
+
+}
+
+// Streak system functions
+
+function updateStreakDisplay() {
+
+    document.getElementById("streakCount").textContent = streak;
+
+    document.getElementById("streakGoal").textContent = `Goal: ${6 - todayHours} more hours today`;
+
+    
+
+    // Update progress bar
+
+    const progressPercent = Math.min((todayHours / 6) * 100, 100);
+
+    document.getElementById("progressBar").style.width = `${progressPercent}%`;
+
+    
+
+    // Save streak data
+
+    localStorage.setItem("todayHours", todayHours);
+
+}
+
+function showStreakMessage(message, isPositive) {
+
+    const messageElement = document.getElementById("streakMessage");
+
+    messageElement.textContent = message;
+
+    messageElement.style.color = isPositive ? "#4CAF50" : "#f44336";
+
+    
+
+    if (isPositive && streak > 1) {
+
+        playSound(streakSound);
+
+        messageElement.innerHTML = `<span class="streak-fire">${message}</span>`;
+
+        
+
+        // Show badge for high streaks
+
+        if (streak >= 3) {
+
+            const badge = document.createElement("div");
+
+            badge.className = "streak-badge";
+
+            badge.textContent = `${streak} DAY STREAK!`;
+
+            messageElement.appendChild(badge);
+
+        }
+
+    }
+
+}
+
+// Particle creation
+
+function createParticle(x, y, type="level") {
+
+    const particle = document.createElement("div");
+
+    particle.className = "particle";
+
+    if(type==="damage") particle.classList.add("damage-particle");
+
+    particle.style.left = x + "px";
+
+    particle.style.top = y + "px";
+
+    document.querySelector(".container").appendChild(particle);
+
+    setTimeout(() => particle.remove(), 800);
+
+}
+
+// Big floating symbol creation
+
+function createSymbol(x, y, symbol, color) {
+
+    const elem = document.createElement("div");
+
+    elem.className = "floating-symbol";
+
+    elem.textContent = symbol;
+
+    elem.style.color = color;
+
+    elem.style.left = x + "px";
+
+    elem.style.top = y + "px";
+
+    document.querySelector(".container").appendChild(elem);
+
+    setTimeout(() => elem.remove(), 1000);
+
+}
+
 function increment() {
-    checkStreak();
-    count++;
+
+    totalCount++;
+
+    todayHours++;
+
     update();
+
+    playSound(levelUp);
+
+    const rect = document.getElementById("count").getBoundingClientRect();
+
+    const containerRect = document.querySelector(".container").getBoundingClientRect();
+
     
-    // Create the +1 effect
-    createPlusEffect();
+
+    createParticle(rect.width/2, rect.top - containerRect.top, "level");
+
+    createSymbol(rect.width/2 - 24, rect.top - containerRect.top - 20, "+", "gold");
+
     
-    // Add pulse effect to button
-    const incrementBtn = document.getElementById('incrementBtn');
-    incrementBtn.classList.add('pulse');
-    setTimeout(() => {
-        incrementBtn.classList.remove('pulse');
-    }, 500);
-    
-    // Add pop effect to count
-    const countElement = document.getElementById('count');
-    countElement.classList.add('count-pop');
-    setTimeout(() => {
-        countElement.classList.remove('count-pop');
-    }, 300);
-    
-    // Play Minecraft level up sound
-    const levelUp = new Audio("https://www.soundjay.com/button/beep-07.mp3");
+
+    // Check if reached daily goal
+
+    if (todayHours === 6) {
+
+        showStreakMessage("🎉 Daily goal achieved! Keep the streak going!", true);
+
+    }
+
 }
 
 function decrement() {
-    checkStreak();
-    if (count > 0) {
-        count--;
+
+    if (totalCount > 0) {
+
+        totalCount--;
+
+        if (todayHours > 0) todayHours--;
+
         update();
+
+        playSound(damage);
+
+        const rect = document.getElementById("count").getBoundingClientRect();
+
+        const containerRect = document.querySelector(".container").getBoundingClientRect();
+
+        
+
+        createParticle(rect.width/2, rect.top - containerRect.top, "damage");
+
+        createSymbol(rect.width/2 - 24, rect.top - containerRect.top - 20, "−", "red");
+
     }
+
 }
 
 function resetCount() {
-    count = 0;
+
+    // Only reset today's hours, not total count
+
+    todayHours = 0;
+
     update();
+
+    playSound(levelUp);
+
+    showStreakMessage("Today's hours reset. Keep studying to maintain your streak!", false);
+
 }
+
 </script>
 
 </body>
+
 </html>
